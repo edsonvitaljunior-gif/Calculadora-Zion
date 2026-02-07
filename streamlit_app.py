@@ -1,20 +1,27 @@
 import streamlit as st
 
-st.set_page_config(page_title="Zion Atelier - Intelligence", page_icon="🗽")
+# Configuração da página
+st.set_page_config(page_title="Zion Atelier - Pro", page_icon="🗽", layout="centered")
 
-st.title("🗽 Zion Atelier")
-st.subheader("Sistema de Gestão de Custos")
+# --- LOGO DA ZION ---
+# Se você tiver o link direto da sua logo, substitua o link abaixo
+logo_url = "https://raw.githubusercontent.com/edsonvitaljunior-gif/Calculadora-Zion/main/logo.png" # Exemplo de caminho
+try:
+    st.image(logo_url, width=200)
+except:
+    st.title("🗽 Zion Atelier")
 
-# --- BANCO DE DADOS DE CAMISAS ---
+st.subheader("Professional Cost Management")
+
+# --- BANCO DE DADOS (DATABASE) ---
 fornecedores_camisas = {
     "Jiffy Shirts (Gildan Unisex)": 2.80,
     "Wordans (Gildan Unisex)": 4.94,
     "Zion Stock (Feminina Gola V)": 25.00,
-    "Zion Stock (Feminina Careca)": 18.00
+    "Zion Stock (Feminina Careca)": 18.00,
+    "Kids/Children Shirt": 12.00
 }
 
-# --- BANCO DE DADOS DE VINIS (Preço por Rolo) ---
-# Aqui definimos: (Preço do Rolo, Largura em pol, Comprimento em Yards)
 vinis_db = {
     "EasyWeed (Siser)": {
         "GPI Supplies": {"price": 34.99, "width": 12, "yards": 5},
@@ -23,62 +30,68 @@ vinis_db = {
     "Glitter (Siser)": {
         "GPI Supplies": {"price": 45.00, "width": 12, "yards": 5},
         "Heat Transfer Whse": {"price": 42.00, "width": 12, "yards": 5}
+    },
+    "Refletivo": {
+        "GPI Supplies": {"price": 55.00, "width": 12, "yards": 5},
+        "Heat Transfer Whse": {"price": 58.00, "width": 12, "yards": 5}
     }
 }
 
-# --- SELEÇÃO DE PRODUTO ---
-st.write("### 👕 1. Escolha a Camisa")
-fornecedor_camisa_sel = st.selectbox("Fornecedor da Camisa", list(fornecedores_camisas.keys()))
-custo_camisa = fornecedores_camisas[fornecedor_camisa_sel]
+# --- SELEÇÕES ---
+st.write("### 👕 1. Camisa & Material")
+col1, col2 = st.columns(2)
+
+with col1:
+    f_camisa = st.selectbox("Fornecedor da Camisa", list(fornecedores_camisas.keys()))
+    custo_camisa = fornecedores_camisas[f_camisa]
+
+with col2:
+    tipo_v = st.selectbox("Tipo de Vinil", list(vinis_db.keys()))
+    f_vinil = st.selectbox("Fornecedor do Vinil", list(vinis_db[tipo_v].keys()))
+
+# Cálculo do preço por sq in (polegada quadrada)
+dados_v = vinis_db[tipo_v][f_vinil]
+preco_sq_in = dados_v["price"] / (dados_v["width"] * (dados_v["yards"] * 36))
 
 st.divider()
 
-# --- SELEÇÃO DE VINIL ---
-st.write("### 🎨 2. Configuração do Vinil")
-col_v1, col_v2 = st.columns(2)
+# --- CAMADAS (LARGURA E ALTURA) ---
+st.write("### 📏 2. Dimensões da Estampa (Inches)")
 
-with col_v1:
-    tipo_vinil_sel = st.selectbox("Tipo de Vinil", list(vinis_db.keys()))
-
-with col_v2:
-    # Filtra os fornecedores que vendem o vinil selecionado
-    fornecedores_vinil_disponiveis = list(vinis_db[tipo_vinil_sel].keys())
-    fornecedor_vinil_sel = st.selectbox("Fornecedor do Vinil", fornecedores_vinil_disponiveis)
-
-# Cálculo do custo por polegada quadrada do rolo
-dados_rolo = vinis_db[tipo_vinil_sel][fornecedor_vinil_sel]
-largura_rolo = dados_rolo["width"]
-comprimento_pol = dados_rolo["yards"] * 36  # Converte yards para inches
-area_total_rolo = largura_rolo * comprimento_pol
-preco_por_sq_in = dados_rolo["price"] / area_total_rolo
-
-st.info(f"Custo calculado deste rolo: ${preco_por_sq_in:.4f} por pol²")
-
-st.divider()
-
-# --- DIMENSÕES DA ARTE ---
-st.write("### 📏 3. Medidas da Arte (Inches)")
 def input_camada(label, key):
     c1, c2 = st.columns(2)
     w = c1.number_input(f"Largura {label}", min_value=0.0, step=0.1, key=f"w{key}")
     h = c2.number_input(f"Altura {label}", min_value=0.0, step=0.1, key=f"h{key}")
     return w * h
 
-area1 = input_camada("Camada 1", "1")
-c2_on = st.checkbox("Add Camada 2?")
-area2 = input_camada("Camada 2", "2") if c2_on else 0.0
-# (Pode adicionar 3 e 4 seguindo o mesmo padrão)
+# Camada 1
+area1 = input_camada("Layer 1 (Base)", "1")
 
-# --- RESULTADO ---
-area_total_arte = area1 + area2
-custo_material_total = area_total_arte * preco_por_sq_in
-lucro_desejado = 2.5 # Multiplicador (Markup)
-preco_final = custo_camisa + (custo_material_total * lucro_desejado)
+# Camadas Extras (Checkbox para habilitar)
+area2 = area3 = area4 = 0.0
+
+if st.checkbox("Adicionar Camada 2?"):
+    area2 = input_camada("Layer 2", "2")
+
+if st.checkbox("Adicionar Camada 3?"):
+    area3 = input_camada("Layer 3", "3")
+
+if st.checkbox("Adicionar Camada 4?"):
+    area4 = input_camada("Layer 4", "4")
+
+# --- CÁLCULO FINAL ---
+area_total = area1 + area2 + area3 + area4
+custo_vinil = area_total * preco_sq_in
+markup = 2.5 # Sua margem de lucro (ajustável)
+preco_final = custo_camisa + (custo_vinil * markup)
 
 st.divider()
-st.metric(label="PREÇO FINAL AO CLIENTE ($)", value=f"$ {preco_final:.2f}")
+st.metric(label="PREÇO FINAL (SUGESTÃO)", value=f"$ {preco_final:.2f}")
 
-with st.expander("Ver detalhes do cálculo"):
-    st.write(f"Custo Camisa: ${custo_camisa:.2f}")
-    st.write(f"Custo Material: ${custo_material_total:.2f}")
-    st.write(f"Rolo usado: {largura_rolo}\" x {dados_rolo['yards']} yards")
+with st.expander("Detalhamento do Orçamento"):
+    st.write(f"**Camisa:** {f_camisa} (${custo_camisa:.2f})")
+    st.write(f"**Vinil:** {tipo_v} via {f_vinil}")
+    st.write(f"**Área Total:** {area_total:.2f} sq in")
+    st.write(f"**Custo Material:** ${custo_vinil:.2f}")
+
+st.caption("Zion Atelier - New York Style By Faith")
