@@ -6,8 +6,8 @@ st.set_page_config(page_title="Zion Atelier - Pro", page_icon="🗽", layout="ce
 # Substitua o bloco do logo por este:
 import os
 
-if os.path.exists("logo.png"):
-    st.image("logo.png", width=200)
+if os.path.exists("Logo Zion Atelier com fundo tranp 68%.png"):
+    st.image("Logo Zion Atelier com fundo tranp 68%.png", width=200)
 else:
     st.title("🗽 Zion Atelier")
 
