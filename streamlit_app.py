@@ -6,7 +6,7 @@ st.set_page_config(page_title="Zion Atelier - Pro", page_icon="🗽")
 
 # --- EXIBIÇÃO DA LOGO ---
 if os.path.exists("Logo Zion Atelier com fundo tranp 68%.png"):
-    st.image("Logo Zion Atelier com fundo tranp 68%.png", width=120) # Tamanho reduzido como você pediu
+    st.image("Logo Zion Atelier com fundo tranp 68%.png", width=100) # Tamanho reduzido como você pediu
 else:
     st.title("🗽 Zion Atelier")
 
