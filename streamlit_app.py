@@ -11,8 +11,6 @@ if os.path.exists("logo.png"):
 else:
     st.title("🗽 Zion Atelier")
 
-st.subheader("Professional Cost Management")
-
 # --- BANCO DE DADOS (DATABASE) ---
 fornecedores_camisas = {
     "Jiffy Shirts (Gildan Unisex)": 2.80,
