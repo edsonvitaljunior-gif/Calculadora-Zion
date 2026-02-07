@@ -3,12 +3,12 @@ import streamlit as st
 # Configuração da página
 st.set_page_config(page_title="Zion Atelier - Pro", page_icon="🗽", layout="centered")
 
-# --- LOGO DA ZION ---
-# Se você tiver o link direto da sua logo, substitua o link abaixo
-logo_url = "https://raw.githubusercontent.com/edsonvitaljunior-gif/Calculadora-Zion/main/logo.png" # Exemplo de caminho
-try:
-    st.image(logo_url, width=200)
-except:
+# Substitua o bloco do logo por este:
+import os
+
+if os.path.exists("logo.png"):
+    st.image("logo.png", width=200)
+else:
     st.title("🗽 Zion Atelier")
 
 st.subheader("Professional Cost Management")
