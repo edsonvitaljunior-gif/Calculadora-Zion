@@ -7,7 +7,7 @@ st.set_page_config(page_title="Zion Atelier - Pro", page_icon="🗽", layout="ce
 import os
 
 if os.path.exists("Logo Zion Atelier com fundo tranp 68%.png"):
-    st.image("Logo Zion Atelier com fundo tranp 68%.png", width=200)
+    st.image("Logo Zion Atelier com fundo tranp 68%.png", width=100)
 else:
     st.title("🗽 Zion Atelier")
 
