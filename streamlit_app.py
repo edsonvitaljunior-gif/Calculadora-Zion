@@ -1,18 +1,15 @@
 import streamlit as st
 import os
 
-# Configuração
-st.set_page_config(page_title="Zion Atelier - Pro", page_icon="🗽")
+st.set_page_config(page_title="Zion Atelier - Multi-Material", page_icon="🗽")
 
-# --- EXIBIÇÃO DA LOGO ---
+# --- LOGO ---
 if os.path.exists("Logo Zion Atelier com fundo tranp 68%.png"):
-    st.image("Logo Zion Atelier com fundo tranp 68%.png", width=100) # Tamanho reduzido como você pediu
+    st.image("Logo Zion Atelier com fundo tranp 68%.png", width=120)
 else:
     st.title("🗽 Zion Atelier")
 
-st.subheader("Professional Cost Management")
-
-# --- 📦 CADASTRO DE VINIS (Adicione novos aqui!) ---
+# --- 📦 SEU INVENTÁRIO CADASTRADO (MANTIDO) ---
 vinis_db = {
     "EasyWeed (Siser)": {
         "GPI Supplies": {"price": 34.99, "width": 12, "yards": 5},
@@ -33,90 +30,110 @@ vinis_db = {
     "Brick 600 (Thick)": {
         "GPI Supplies": {"price": 62.99, "width": 20, "yards": 5},
         "Heat Transfer Whse": {"price": 39.99, "width": 12, "yards": 5}
-   },
+    },
     "Gliter (Thick)": {
         "GPI Supplies": {"price": 37.99, "width": 12, "yards": 5},
         "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}
-   },
+    },
     "Aurora (Thick)": {
         "GPI Supplies": {"price": 28.49, "width": 12, "yards": 5},
-   },
+    },
     "Easy Glow in the Dark / Brilha no escuro (Thick)": {
         "Heat Transfer Whse": {"price": 62.99, "width": 12, "yards": 5}
-  },
+    },
     "StripFlock Pro (Thick)": {
         "GPI Supplies": {"price": 35.99, "width": 12, "yards": 5},
         "Heat Transfer Whse": {"price": 45.00, "width": 12, "yards": 5}
-  },
+    },
     "EasyWeed Adhesive para Foil (Thick)": {
         "Heat Transfer Whse": {"price": 23.50, "width": 12, "yards": 5}
-         },
+    },
     "Easy Glow Brilha no escuro Cores (Thick)": {
         "Heat Transfer Whse": {"price": 52.99, "width": 12, "yards": 5}
-         },
+    },
     "Easy Fluorecent Pro (Thick)": {
-        "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5},
-        
+        "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}
     }
 }
 
-# --- 👕 CADASTRO DE CAMISAS ---
 fornecedores_camisas = {
     "Jiffy Shirts (Gildan Unisex)": 2.80,
     "Wordans (Gildan Unisex)": 4.94,
-    "Jiffy Shirts (Feminina Algodão pesado Gildan G500VL Gola V)": 6.37,
+    "Zion Stock (Feminina Gola V)": 25.00,
     "Zion Stock (Feminina Careca)": 18.00,
     "Kids Shirt": 12.00
 }
 
-# --- SELEÇÕES NO APP ---
-st.write("### 👕 1. Produto e Material")
-c1, c2 = st.columns(2)
-
-with c1:
-    f_camisa = st.selectbox("Camisa/Fornecedor", list(fornecedores_camisas.keys()))
-    custo_camisa = fornecedores_camisas[f_camisa]
-
-with c2:
-    tipo_v = st.selectbox("Tipo de Vinil", list(vinis_db.keys()))
-    f_vinil = st.selectbox("Fornecedor do Vinil", list(vinis_db[tipo_v].keys()))
-
-# Cálculo matemático do custo por polegada quadrada
-dados_v = vinis_db[tipo_v][f_vinil]
-# Preço / (Largura * (Jardas * 36 polegadas))
-preco_sq_in = dados_v["price"] / (dados_v["width"] * (dados_v["yards"] * 36))
+# --- 👕 1. PRODUTO BASE ---
+st.write("### 👕 1. Produto Base")
+f_camisa = st.selectbox("Selecione a Camisa", list(fornecedores_camisas.keys()))
+custo_camisa = fornecedores_camisas[f_camisa]
 
 st.divider()
 
-# --- MEDIDAS ---
-st.write("### 📏 2. Medidas da Estampa (Inches)")
+# --- 📏 2. CAMADAS INDEPENDENTES ---
+st.write("### 📏 2. Configuração por Camada")
 
-def input_camada(label, key):
-    col_w, col_h = st.columns(2)
-    w = col_w.number_input(f"Largura {label}", min_value=0.0, step=0.1, key=f"w{key}")
-    h = col_h.number_input(f"Altura {label}", min_value=0.0, step=0.1, key=f"h{key}")
-    return w * h
+def calcular_custo_camada(n):
+    with st.container():
+        st.markdown(f"**🎨 Camada {n}**")
+        col1, col2 = st.columns(2)
+        with col1:
+            v_tipo = st.selectbox(f"Material C{n}", list(vinis_db.keys()), key=f"tipo{n}")
+        with col2:
+            opcoes_f = list(vinis_db[v_tipo].keys())
+            v_forn = st.selectbox(f"Fornecedor C{n}", opcoes_f, key=f"forn{n}")
+        
+        col3, col4 = st.columns(2)
+        w = col3.number_input(f"Largura (in) C{n}", min_value=0.0, step=0.1, key=f"w{n}")
+        h = col4.number_input(f"Altura (in) C{n}", min_value=0.0, step=0.1, key=f"h{n}")
+        
+        # Cálculo do custo/polegada específica
+        d = vinis_db[v_tipo][v_forn]
+        # Preço / (Largura * Comprimento em pol)
+        taxa = d["price"] / (d["width"] * (d["yards"] * 36))
+        custo_camada = (w * h) * taxa
+        return custo_camada, v_tipo
 
-area1 = input_camada("Layer 1", "1")
-area2 = input_camada("Layer 2", "2") if st.checkbox("Add Layer 2?") else 0.0
-area3 = input_camada("Layer 3", "3") if st.checkbox("Add Layer 3?") else 0.0
-area4 = input_camada("Layer 4", "4") if st.checkbox("Add Layer 4?") else 0.0
+custos_vinis = []
+detalhes = []
 
-# --- PRECIFICAÇÃO ---
-area_total = area1 + area2 + area3 + area4
-custo_vinil_total = area_total * preco_sq_in
+# Camada 1
+c_custo, c_nome = calcular_custo_camada(1)
+custos_vinis.append(c_custo)
+detalhes.append(f"C1 ({c_nome}): ${c_custo:.2f}")
 
-# MARKUP: Multiplicador sobre o custo do vinil para cobrir mão de obra e lucro
-# Exemplo: 3.0 significa que você cobra 3x o custo do material
-markup = 3.0 
-preco_final = custo_camisa + (custo_vinil_total * markup)
+# Camadas Extras
+if st.checkbox("Habilitar Camada 2"):
+    st.divider()
+    c_custo, c_nome = calcular_custo_camada(2)
+    custos_vinis.append(c_custo)
+    detalhes.append(f"C2 ({c_nome}): ${c_custo:.2f}")
+
+if st.checkbox("Habilitar Camada 3"):
+    st.divider()
+    c_custo, c_nome = calcular_custo_camada(3)
+    custos_vinis.append(c_custo)
+    detalhes.append(f"C3 ({c_nome}): ${c_custo:.2f}")
+
+if st.checkbox("Habilitar Camada 4"):
+    st.divider()
+    c_custo, c_nome = calcular_custo_camada(4)
+    custos_vinis.append(c_custo)
+    detalhes.append(f"C4 ({c_nome}): ${c_custo:.2f}")
+
+# --- 💰 RESULTADO FINAL ---
+markup = 3.0 # Multiplicador de lucro
+custo_total_material = sum(custos_vinis)
+total_final = custo_camisa + (custo_total_material * markup)
 
 st.divider()
-st.metric(label="PREÇO ESTIMADO ($)", value=f"$ {preco_final:.2f}")
+st.metric(label="PREÇO FINAL ESTIMADO ($)", value=f"$ {total_final:.2f}")
 
-with st.expander("Detalhamento"):
-    st.write(f"Custo Base Camisa: ${custo_camisa:.2f}")
-    st.write(f"Custo Real Material: ${custo_vinil_total:.4f}")
-    st.write(f"Área Total: {area_total:.2f} sq in")
+with st.expander("Resumo de Custos"):
+    st.write(f"Camisa: ${custo_camisa:.2f}")
+    for d in detalhes:
+        st.write(d)
+    st.write(f"Custo Real Material: ${custo_total_material:.2f}")
 
 st.caption("Zion Atelier - New York Style By Faith")
