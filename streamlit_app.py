@@ -22,7 +22,7 @@ st.divider()
 
 # --- 4. DATABASE ---
 vinis_db = {
-    "EasyWeed (Siser)": 34.99,
+    "EasyWeed HTV (Siser)": 34.99,
     "Puff Vinyl": 42.00,
     "Metallic": 30.99,
     "Brick 600 (Thick)": 62.99,
