@@ -42,11 +42,20 @@ vinis_db = {
         "GPI Supplies": {"price": 28.49, "width": 12, "yards": 5},
    },
     "Easy Glow in the Dark / Brilha no escuro (Thick)": {
-        "Heat Transfer Whse": {"price": 52.99, "width": 12, "yards": 5}
+        "Heat Transfer Whse": {"price": 62.99, "width": 12, "yards": 5}
   },
     "StripFlock Pro (Thick)": {
         "GPI Supplies": {"price": 35.99, "width": 12, "yards": 5},
         "Heat Transfer Whse": {"price": 45.00, "width": 12, "yards": 5}
+  },
+    "EasyWeed Adhesive para Foil (Thick)": {
+        "Heat Transfer Whse": {"price": 23.50, "width": 12, "yards": 5}
+         },
+    "Easy Glow Brilha no escuro Cores (Thick)": {
+        "Heat Transfer Whse": {"price": 52.99, "width": 12, "yards": 5}
+         },
+    "Easy Fluorecent Pro (Thick)": {
+        "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5},
         
     }
 }
