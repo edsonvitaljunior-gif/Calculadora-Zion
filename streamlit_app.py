@@ -4,12 +4,14 @@ import os
 st.set_page_config(page_title="Zion Atelier - Multi-Material", page_icon="🗽")
 
 # --- LOGO ---
-if os.path.exists("Logo Zion Atelier com fundo tranp 68%.png"):
-    st.image("Logo Zion Atelier com fundo tranp 68%.png", width=120)
+# Certifique-se de que o arquivo no GitHub tem EXATAMENTE este nome:
+nome_logo = "Logo Zion Atelier com fundo tranp 68%.png"
+if os.path.exists(nome_logo):
+    st.image(nome_logo, width=150)
 else:
     st.title("🗽 Zion Atelier")
 
-# --- 📦 SEU INVENTÁRIO CADASTRADO (MANTIDO) ---
+# --- 📦 SEU INVENTÁRIO CADASTRADO ---
 vinis_db = {
     "EasyWeed (Siser)": {
         "GPI Supplies": {"price": 34.99, "width": 12, "yards": 5},
@@ -61,7 +63,7 @@ fornecedores_camisas = {
     "Wordans (Gildan Unisex)": 4.94,
     "Jiffy Shirts G500VL (Feminina Gola V)": 6.37,
     "Jiffy Shirts G500L (Feminina Careca)": 4.91,
-    "Jiffy Shirts G510P Kids Shirt": 3.93
+    "Jiffy Shirts G510P Kids Shirt": 3.93,
     "Jiffy Shirts G510B Juvenil Shirt": 3.93
 }
 
@@ -91,7 +93,6 @@ def calcular_custo_camada(n):
         
         # Cálculo do custo/polegada específica
         d = vinis_db[v_tipo][v_forn]
-        # Preço / (Largura * Comprimento em pol)
         taxa = d["price"] / (d["width"] * (d["yards"] * 36))
         custo_camada = (w * h) * taxa
         return custo_camada, v_tipo
@@ -124,7 +125,7 @@ if st.checkbox("Habilitar Camada 4"):
     detalhes.append(f"C4 ({c_nome}): ${c_custo:.2f}")
 
 # --- 💰 RESULTADO FINAL ---
-markup = 3.0 # Multiplicador de lucro
+markup = 3.0 
 custo_total_material = sum(custos_vinis)
 total_final = custo_camisa + (custo_total_material * markup)
 
@@ -135,6 +136,6 @@ with st.expander("Resumo de Custos"):
     st.write(f"Camisa: ${custo_camisa:.2f}")
     for d in detalhes:
         st.write(d)
-    st.write(f"Custo Real Material: ${custo_total_material:.2f}")
+    st.write(f"Custo Real Material Total: ${custo_total_material:.2f}")
 
 st.caption("Zion Atelier - New York Style By Faith")
