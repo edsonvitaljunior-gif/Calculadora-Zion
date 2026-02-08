@@ -22,18 +22,31 @@ if os.path.exists(nome_logo):
 else:
     st.title("🗽 Zion Atelier")
 
-# --- 📋 1. IDENTIFICAÇÃO DO PROJETO ---
+# --- 📋 1. IDENTIFICAÇÃO DO PROJETO (Vertical para não bagunçar) ---
 st.write("### 📝 Dados do Orçamento")
-col_cli, col_art = st.columns(2)
-with col_cli:
-    nome_cliente = st.text_input("Nome do Cliente", placeholder="Ex: John Doe")
-with col_art:
-    nome_arte = st.text_input("Nome da Arte / Projeto", placeholder="Ex: NY Faith 2026")
-
+nome_cliente = st.text_input("Nome do Cliente", placeholder="Ex: John Doe")
+nome_arte = st.text_input("Nome da Arte / Projeto", placeholder="Ex: NY Faith 2026")
 arquivo_arte = st.file_uploader("Upload da Arte (Opcional)", type=["png", "jpg", "jpeg", "webp"])
 
 st.divider()
 
+# ... (restante do código igual) ...
+
+# --- 🏁 RESUMO PARA O CLIENTE (Ajustado para Celular) ---
+st.subheader("🏁 Resumo do Orçamento")
+
+# Mostra a imagem primeiro no celular para dar destaque
+if arquivo_arte is not None:
+    st.image(arquivo_arte, use_container_width=True)
+    st.caption("🎨 Preview do Projeto")
+
+st.info(f"👤 **Cliente:** {nome_cliente if nome_cliente else 'Friend of Zion'} \n\n🎨 **Projeto:** {nome_arte if nome_arte else 'Custom Design'}")
+
+col_res1, col_res2 = st.columns(2)
+with col_res1:
+    st.metric("Preço Unitário", f"${p_unit:.2f}")
+with col_res2:
+    st.metric("TOTAL", f"${total_final:.2f}", delta=f"-10%" if promo else None)
 # --- 📦 DATABASE DE VINIS ---
 vinis_db = {
     "EasyWeed (Siser)": {"GPI Supplies": {"price": 34.99, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}},
