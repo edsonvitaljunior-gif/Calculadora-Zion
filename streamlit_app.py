@@ -1,10 +1,17 @@
 import streamlit as st
 import os
 
-st.set_page_config(page_title="Zion Atelier - Sales Pro", page_icon="🗽")
-
-# --- LOGO ---
+# --- CONFIGURAÇÃO DA PÁGINA COM O ÍCONE DA ZION ---
+# O segredo está aqui: o page_icon agora aponta para o arquivo da sua logo!
 nome_logo = "Logo Zion Atelier com fundo tranp 68%.png"
+
+st.set_page_config(
+    page_title="Zion Atelier - Sales Pro", 
+    page_icon=nome_logo if os.path.exists(nome_logo) else "🗽",
+    layout="centered"
+)
+
+# --- EXIBIÇÃO DA LOGO NO TOPO ---
 if os.path.exists(nome_logo):
     st.image(nome_logo, width=150)
 else:
