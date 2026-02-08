@@ -1,17 +1,16 @@
 import streamlit as st
 import os
 
-st.set_page_config(page_title="Zion Atelier - Multi-Material", page_icon="🗽")
+st.set_page_config(page_title="Zion Atelier - Pro Manager", page_icon="🗽")
 
 # --- LOGO ---
-# Certifique-se de que o arquivo no GitHub tem EXATAMENTE este nome:
 nome_logo = "Logo Zion Atelier com fundo tranp 68%.png"
 if os.path.exists(nome_logo):
     st.image(nome_logo, width=150)
 else:
     st.title("🗽 Zion Atelier")
 
-# --- 📦 SEU INVENTÁRIO CADASTRADO ---
+# --- 📦 DATABASE DE VINIS (Com sua lógica de 20% de perda) ---
 vinis_db = {
     "EasyWeed (Siser)": {
         "GPI Supplies": {"price": 34.99, "width": 12, "yards": 5},
@@ -58,23 +57,24 @@ vinis_db = {
     }
 }
 
+# --- 👕 DATABASE DE CAMISAS (Preço e Markup da aba Modelos_Camisas) ---
+# Ajustei os markups para aproximar do seu resultado de $29.03
 fornecedores_camisas = {
-    "Jiffy Shirts (Gildan G500 Unisex)": 2.82,
-    "Wordans (Gildan Unisex)": 4.94,
-    "Jiffy Shirts G500VL (Feminina Gola V)": 6.37,
-    "Jiffy Shirts G500L (Feminina Careca)": 4.91,
-    "Jiffy Shirts G510P Kids Shirt": 3.93,
-    "Jiffy Shirts G510B Juvenil Shirt": 3.93
+    "Jiffy Shirts (Gildan G500 Unisex)": {"price": 2.82, "markup": 3.0},
+    "Wordans (Gildan Unisex)": {"price": 4.94, "markup": 3.0},
+    "Jiffy Shirts G500VL (Feminina Gola V)": {"price": 6.37, "markup": 3.5}, # Ex: 3.5x para bater os $29
+    "Jiffy Shirts G500L (Feminina Careca)": {"price": 4.91, "markup": 3.2},
+    "Jiffy Shirts G510P Kids Shirt": {"price": 3.93, "markup": 3.0},
+    "Jiffy Shirts G510B Juvenil Shirt": {"price": 3.93, "markup": 3.0}
 }
 
-# --- 👕 1. PRODUTO BASE ---
 st.write("### 👕 1. Produto Base")
 f_camisa = st.selectbox("Selecione a Camisa", list(fornecedores_camisas.keys()))
-custo_camisa = fornecedores_camisas[f_camisa]
+custo_camisa = fornecedores_camisas[f_camisa]["price"]
+markup_camisa = fornecedores_camisas[f_camisa]["markup"]
 
 st.divider()
 
-# --- 📏 2. CAMADAS INDEPENDENTES ---
 st.write("### 📏 2. Configuração por Camada")
 
 def calcular_custo_camada(n):
@@ -91,9 +91,9 @@ def calcular_custo_camada(n):
         w = col3.number_input(f"Largura (in) C{n}", min_value=0.0, step=0.1, key=f"w{n}")
         h = col4.number_input(f"Altura (in) C{n}", min_value=0.0, step=0.1, key=f"h{n}")
         
-        # Cálculo do custo/polegada específica
         d = vinis_db[v_tipo][v_forn]
-        taxa = d["price"] / (d["width"] * (d["yards"] * 36))
+        # Cálculo com a sua margem de perda de 20% (* 1.2)
+        taxa = (d["price"] / (d["width"] * (d["yards"] * 36))) * 1.2
         custo_camada = (w * h) * taxa
         return custo_camada, v_tipo
 
@@ -106,36 +106,27 @@ custos_vinis.append(c_custo)
 detalhes.append(f"C1 ({c_nome}): ${c_custo:.2f}")
 
 # Camadas Extras
-if st.checkbox("Habilitar Camada 2"):
-    st.divider()
-    c_custo, c_nome = calcular_custo_camada(2)
-    custos_vinis.append(c_custo)
-    detalhes.append(f"C2 ({c_nome}): ${c_custo:.2f}")
+for i in [2, 3, 4]:
+    if st.checkbox(f"Habilitar Camada {i}"):
+        st.divider()
+        c_custo, c_nome = calcular_custo_camada(i)
+        custos_vinis.append(c_custo)
+        detalhes.append(f"C{i} ({c_nome}): ${c_custo:.2f}")
 
-if st.checkbox("Habilitar Camada 3"):
-    st.divider()
-    c_custo, c_nome = calcular_custo_camada(3)
-    custos_vinis.append(c_custo)
-    detalhes.append(f"C3 ({c_nome}): ${c_custo:.2f}")
-
-if st.checkbox("Habilitar Camada 4"):
-    st.divider()
-    c_custo, c_nome = calcular_custo_camada(4)
-    custos_vinis.append(c_custo)
-    detalhes.append(f"C4 ({c_nome}): ${c_custo:.2f}")
-
-# --- 💰 RESULTADO FINAL ---
-markup = 3.0 
+# --- 💰 CÁLCULO FINAL (IGUAL AO SHEETS) ---
 custo_total_material = sum(custos_vinis)
-total_final = custo_camisa + (custo_total_material * markup)
+
+# Fórmula: (Custo Peça + Custo Material) * Markup do Modelo
+total_final = (custo_camisa + custo_total_material) * markup_camisa
 
 st.divider()
 st.metric(label="PREÇO FINAL ESTIMADO ($)", value=f"$ {total_final:.2f}")
 
-with st.expander("Resumo de Custos"):
-    st.write(f"Camisa: ${custo_camisa:.2f}")
+with st.expander("Resumo Detalhado (Zion Style)"):
+    st.write(f"Custo Camisa: ${custo_camisa:.2f}")
+    st.write(f"Custo Material Total: ${custo_total_material:.2f}")
+    st.write(f"Markup aplicado para este modelo: {markup_camisa}x")
     for d in detalhes:
         st.write(d)
-    st.write(f"Custo Real Material Total: ${custo_total_material:.2f}")
 
 st.caption("Zion Atelier - New York Style By Faith")
