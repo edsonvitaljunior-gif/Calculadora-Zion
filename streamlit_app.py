@@ -20,7 +20,7 @@ arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "w
 
 st.divider()
 
-# --- 4. DATABASE COMPLETA ---
+# --- 4. DATABASE ---
 vinis_db = {
     "EasyWeed (Siser)": 34.99,
     "Puff Vinyl": 42.00,
@@ -46,17 +46,13 @@ produtos_db = {
     }
 }
 
-# --- 5. SELEÇÃO DE PRODUTO (CORRIGIDO) ---
+# --- 5. SELEÇÃO DE PRODUTO ---
 st.write("### 🛍️ Escolha o Item")
 categoria_selecionada = st.selectbox("Categoria", list(produtos_db.keys()))
-
-# Aqui está o segredo: os produtos mudam de acordo com a categoria
 lista_produtos = list(produtos_db[categoria_selecionada].keys())
 produto_nome = st.selectbox("Modelo", lista_produtos)
-
 qtd = st.number_input("Quantidade", min_value=1, value=1)
 
-# Puxa o preço e o markup do produto selecionado
 dados_prod = produtos_db[categoria_selecionada][produto_nome]
 c_base = dados_prod["price"]
 mk_base = dados_prod["markup"]
@@ -72,13 +68,22 @@ with col1:
 with col2:
     h = st.number_input("Altura (in)", value=10.0)
 
-# Cálculo de custo
+# Cálculo de custo (Rolo padrão 12in x 180in) + 20% margem de erro
 custo_v = (w * h) * (vinis_db[tipo_v] / (12 * 180)) * 1.2
-p_unit = (c_base + custo_v) * mk_base
-total = p_unit * qtd
+custo_unitario_total = c_base + custo_v
 
-# --- 7. RESUMO FINAL ---
+# --- 7. PREÇOS ---
+p_unit_sugerido = custo_unitario_total * mk_base
+total_bruto = p_unit_sugerido * qtd
+
+st.write("### 💰 Promoção")
+promo = st.toggle("Aplicar 10% de Desconto Especial")
+total_final = total_bruto * 0.9 if promo else total_bruto
+p_unit_final = total_final / qtd
+
 st.divider()
+
+# --- 8. RESUMO PARA O CLIENTE ---
 st.subheader("🏁 Resumo do Pedido")
 
 if arquivo_arte is not None:
@@ -86,11 +91,29 @@ if arquivo_arte is not None:
 
 st.info(f"👤 **Cliente:** {nome_cliente if nome_cliente else 'Zion Friend'} | 🎨 **Arte:** {nome_arte if nome_arte else 'Custom'}")
 
-st.metric("Preço Unitário", f"${p_unit:.2f}")
-st.metric("TOTAL DO PEDIDO", f"${total:.2f}")
+c_res1, c_res2 = st.columns(2)
+c_res1.metric("Unitário", f"${p_unit_final:.2f}")
+c_res2.metric("Total", f"${total_final:.2f}", delta="-10%" if promo else None)
 
-with st.expander("📊 Zion Only"):
-    st.write(f"Custo Unitário Real: ${(c_base + custo_v):.2f}")
-    st.write(f"Markup Aplicado: {mk_base}x")
+# --- 9. 📊 ÁREA TÉCNICA (ZION ONLY) - AGORA COMPLETA ---
+with st.expander("📊 Detalhes Financeiros (Zion Only)"):
+    custo_total_pedido = custo_unitario_total * qtd
+    lucro_liquido = total_final - custo_total_pedido
+    margem_porcentagem = (lucro_liquido / total_final) * 100 if total_final > 0 else 0
+    
+    col_t1, col_t2 = st.columns(2)
+    with col_t1:
+        st.write("**Custos:**")
+        st.write(f"Peça base: ${c_base:.2f}")
+        st.write(f"Vinil: ${custo_v:.2f}")
+        st.write(f"Custo Total/Un: ${custo_unitario_total:.2f}")
+    with col_t2:
+        st.write("**Performance:**")
+        st.write(f"Markup: {mk_base}x")
+        st.write(f"Lucro Bruto: ${lucro_liquido:.2f}")
+        st.write(f"Margem: {margem_porcentagem:.1f}%")
+    
+    st.divider()
+    st.success(f"💰 **DINHEIRO NO BOLSO: ${lucro_liquido:.2f}**")
 
 st.caption("Zion Atelier - New York Style By Faith")
