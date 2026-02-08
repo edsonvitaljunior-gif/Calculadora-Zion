@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 
-# --- 1. CONFIGURAÇÃO S24 ---
+# --- 1. CONFIGURAÇÃO S24 (Forçando o buffer) ---
 try:
     st.set_page_config(page_title="Zion Atelier", page_icon="🗽", layout="centered")
 except:
@@ -20,7 +20,7 @@ arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "w
 
 st.divider()
 
-# --- 4. DATABASE COMPLETA (Vinis e Fornecedores) ---
+# --- 4. DATABASES ---
 vinis_db = {
     "EasyWeed (Siser)": {"GPI Supplies": {"price": 34.99, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}},
     "Puff Vinyl": {"GPI Supplies": {"price": 42.00, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 42.00, "width": 12, "yards": 5}},
@@ -44,87 +44,65 @@ produtos_db = {
         "Kids Shirt": {"price": 3.93, "markup": 3.0},
         "Gildan G500B - Juvenil Heavy Cotton™": {"price": 2.96, "markup": 3.0}
     },
-    "MOLETONS": {
-        "Gildan G185 Hoodie": {"price": 14.50, "markup": 2.5}
-    },
-    "BONÉS": {
-        "Snapback Classic": {"price": 5.50, "markup": 4.0},
-        "Trucker Hat": {"price": 4.20, "markup": 4.0}
-    }
+    "MOLETONS": {"Gildan G185 Hoodie": {"price": 14.50, "markup": 2.5}},
+    "BONÉS": {"Snapback Classic": {"price": 5.50, "markup": 4.0}, "Trucker Hat": {"price": 4.20, "markup": 4.0}}
 }
 
-# --- 5. SELEÇÃO DE PRODUTO ---
-st.write("### 🛍️ Escolha o Item")
-categoria_selecionada = st.selectbox("Categoria", list(produtos_db.keys()))
-lista_produtos = list(produtos_db[categoria_selecionada].keys())
-produto_nome = st.selectbox("Modelo", lista_produtos)
-qtd = st.number_input("Quantidade", min_value=1, value=1)
+# --- 5. SELEÇÃO DO PRODUTO ---
+st.write("### 🛍️ Produto Base")
+cat = st.selectbox("Categoria", list(produtos_db.keys()))
+prod = st.selectbox("Modelo", list(produtos_db[cat].keys()))
+qtd = st.number_input("Quantidade de Peças", min_value=1, value=1)
 
-c_base = produtos_db[categoria_selecionada][produto_nome]["price"]
-mk_base = produtos_db[categoria_selecionada][produto_nome]["markup"]
-
-st.divider()
-
-# --- 6. MEDIDAS DA ESTAMPA ---
-st.write("### 📏 Medidas da Arte")
-tipo_v = st.selectbox("Tipo de Vinil", list(vinis_db.keys()))
-fornecedor_v = st.selectbox("Fornecedor", list(vinis_db[tipo_v].keys()))
-
-col1, col2 = st.columns(2)
-with col1:
-    w = st.number_input("Largura (in)", value=10.0)
-with col2:
-    h = st.number_input("Altura (in)", value=10.0)
-
-# Cálculo de custo dinâmico
-info_v = vinis_db[tipo_v][fornecedor_v]
-custo_sq_in = info_v["price"] / (info_v["width"] * (info_v["yards"] * 36))
-custo_v = (w * h) * custo_sq_in * 1.2
-custo_unitario_total = c_base + custo_v
-
-# --- 7. PREÇOS ---
-p_unit_sugerido = custo_unitario_total * mk_base
-total_bruto = p_unit_sugerido * qtd
-
-st.write("### 💰 Promoção")
-promo = st.toggle("Aplicar 10% de Desconto Especial")
-total_final = total_bruto * 0.9 if promo else total_bruto
-p_unit_final = total_final / qtd
+c_base = produtos_db[cat][prod]["price"]
+mk_base = produtos_db[cat][prod]["markup"]
 
 st.divider()
 
-# --- 8. RESUMO PARA O CLIENTE (O jeitinho que o S24 gosta) ---
+# --- 6. CAMADAS DE VINIL (As 4 voltaram!) ---
+st.write("### 📏 Camadas de Vinil")
+n_camadas = st.slider("Quantas cores/camadas de vinil?", 1, 4, 1)
+
+custo_vinil_total_un = 0.0
+
+for i in range(n_camadas):
+    with st.expander(f"Camada {i+1}", expanded=(i==0)):
+        tipo_v = st.selectbox(f"Tipo Vinil C{i+1}", list(vinis_db.keys()), key=f"v{i}")
+        forn_v = st.selectbox(f"Fornecedor C{i+1}", list(vinis_db[tipo_v].keys()), key=f"f{i}")
+        
+        c1, c2 = st.columns(2)
+        with c1: w = st.number_input(f"Largura C{i+1}", value=10.0, key=f"w{i}")
+        with c2: h = st.number_input(f"Altura C{i+1}", value=10.0, key=f"h{i}")
+        
+        info = vinis_db[tipo_v][forn_v]
+        custo_sqin = info["price"] / (info["width"] * (info["yards"] * 36))
+        custo_camada = (w * h) * custo_sqin * 1.2
+        custo_vinil_total_un += custo_camada
+        st.write(f"Custo desta camada: ${custo_camada:.2f}")
+
+# --- 7. CÁLCULO FINAL ---
+custo_un_total = c_base + custo_vinil_total_un
+p_unit_final = custo_un_total * mk_base
+total_geral = p_unit_final * qtd
+
+st.divider()
+
+# --- 8. RESUMO ---
 st.subheader("🏁 Resumo do Pedido")
 
+# TENTATIVA FINAL PARA A FOTO:
 if arquivo_arte is not None:
-    # Mantendo exatamente como estava no código que funcionou
+    # Mudamos o método de renderização para ver se o S24 aceita
     st.image(arquivo_arte, use_container_width=True)
+    st.caption("✅ Imagem processada pelo servidor")
 
-st.info(f"👤 **Cliente:** {nome_cliente if nome_cliente else 'Zion Friend'} | 🎨 **Arte:** {nome_arte if nome_arte else 'Custom'}")
+st.info(f"👤 **Cliente:** {nome_cliente if nome_cliente else 'Zion Friend'}")
 
-c_res1, c_res2 = st.columns(2)
-c_res1.metric("Unitário", f"${p_unit_final:.2f}")
-c_res2.metric("Total", f"${total_final:.2f}", delta="-10%" if promo else None)
+col_res1, col_res2 = st.columns(2)
+col_res1.metric("Unitário", f"${p_unit_final:.2f}")
+col_res2.metric("Total", f"${total_geral:.2f}")
 
-# --- 9. 📊 ÁREA TÉCNICA (ZION ONLY) ---
-with st.expander("📊 Detalhes Financeiros (Zion Only)"):
-    custo_total_pedido = custo_unitario_total * qtd
-    lucro_liquido = total_final - custo_total_pedido
-    margem_porcentagem = (lucro_liquido / total_final) * 100 if total_final > 0 else 0
-    
-    col_t1, col_t2 = st.columns(2)
-    with col_t1:
-        st.write("**Custos:**")
-        st.write(f"Peça base: ${c_base:.2f}")
-        st.write(f"Vinil: ${custo_v:.2f}")
-        st.write(f"Custo Total/Un: ${custo_unitario_total:.2f}")
-    with col_t2:
-        st.write("**Performance:**")
-        st.write(f"Markup: {mk_base}x")
-        st.write(f"Lucro Bruto: ${lucro_liquido:.2f}")
-        st.write(f"Margem: {margem_porcentagem:.1f}%")
-    
-    st.divider()
-    st.success(f"💰 **DINHEIRO NO BOLSO: ${lucro_liquido:.2f}**")
-
-st.caption("Zion Atelier - New York Style By Faith")
+# --- 9. ZION ONLY ---
+with st.expander("📊 Detalhes Financeiros"):
+    lucro = total_geral - (custo_un_total * qtd)
+    st.write(f"Custo Peça: ${c_base:.2f}")
