@@ -11,13 +11,13 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- EXIBIÇÃO DA LOGO ---
+# --- EXIBIÇÃO DA LOGO NO TOPO ---
 if os.path.exists(nome_logo):
     st.image(nome_logo, width=150)
 else:
     st.title("🗽 Zion Atelier")
 
-# --- 📋 IDENTIFICAÇÃO DO PROJETO ---
+# --- 📋 1. IDENTIFICAÇÃO DO PROJETO ---
 st.write("### 📝 Dados do Orçamento")
 col_cli, col_art = st.columns(2)
 with col_cli:
@@ -25,12 +25,12 @@ with col_cli:
 with col_art:
     nome_arte = st.text_input("Nome da Arte / Projeto", placeholder="Ex: NY Faith 2026")
 
-# CAMPO DE UPLOAD DA ARTE
-arquivo_arte = st.file_uploader("Upload da Arte (Opcional)", type=["png", "jpg", "jpeg"])
+# Campo de Upload com suporte expandido para tipos de imagem
+arquivo_arte = st.file_uploader("Upload da Arte (Opcional)", type=["png", "jpg", "jpeg", "webp"])
 
 st.divider()
 
-# --- 📦 DATABASE DE VINIS ---
+# --- 📦 DATABASE DE VINIS (Preços atualizados com 20% de perda) ---
 vinis_db = {
     "EasyWeed (Siser)": {"GPI Supplies": {"price": 34.99, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}},
     "Puff Vinyl": {"GPI Supplies": {"price": 42.00, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 42.00, "width": 12, "yards": 5}},
@@ -47,6 +47,7 @@ vinis_db = {
 produtos_db = {
     "CAMISAS": {
         "Gildan G500 Unisex (Jiffy)": {"price": 2.82, "markup": 3.0},
+        "Gildan G500 Unisex (Wordans)": {"price": 4.94, "markup": 3.0},
         "Feminina Gola V G500VL (Jiffy)": {"price": 6.37, "markup": 3.5},
         "Feminina Careca G500L (Jiffy)": {"price": 4.91, "markup": 3.2},
         "Kids Shirt G510P (Jiffy)": {"price": 3.93, "markup": 3.0}
@@ -56,68 +57,3 @@ produtos_db = {
     },
     "BONÉS (HATS)": {
         "Snapback Classic (Jiffy)": {"price": 5.50, "markup": 4.0},
-        "Trucker Hat (Jiffy)": {"price": 4.20, "markup": 4.0}
-    }
-}
-
-# --- 🛍️ 1. SELEÇÃO DO PRODUTO ---
-st.write("### 🛍️ 1. Detalhes do Produto")
-cat = st.selectbox("Categoria", list(produtos_db.keys()))
-prod = st.selectbox("Modelo", list(produtos_db[cat].keys()))
-qtd = st.number_input("Quantidade", min_value=1, value=1)
-
-c_base = produtos_db[cat][prod]["price"]
-mk_base = produtos_db[cat][prod]["markup"]
-
-st.divider()
-
-# --- 📏 2. MATERIAIS ---
-st.write("### 📏 2. Configuração da Estampa")
-
-def calc_camada(n):
-    with st.expander(f"Camada {n}", expanded=(n==1)):
-        c1, c2 = st.columns(2)
-        tipo = c1.selectbox(f"Material C{n}", list(vinis_db.keys()), key=f"t{n}")
-        forn = c2.selectbox(f"Fornecedor C{n}", list(vinis_db[tipo].keys()), key=f"f{n}")
-        c3, c4 = st.columns(2)
-        w = c3.number_input(f"Largura (in) C{n}", min_value=0.0, step=0.1, key=f"w{n}")
-        h = c4.number_input(f"Altura (in) C{n}", min_value=0.0, step=0.1, key=f"h{n}")
-        d = vinis_db[tipo][forn]
-        taxa = (d["price"] / (d["width"] * (d["yards"] * 36))) * 1.2
-        return (w * h) * taxa, tipo
-
-custos, nomes = [], []
-for i in range(1, 5):
-    if i == 1 or st.checkbox(f"Adicionar Camada {i}", key=f"cb{i}"):
-        v, n = calc_camada(i)
-        custos.append(v)
-        nomes.append(n)
-
-# --- 💰 3. FECHAMENTO ---
-st.divider()
-total_mat = sum(custos)
-p_unit = (c_base + total_mat) * mk_base
-total_bruto = p_unit * qtd
-promo = st.toggle("Aplicar Desconto Especial (10%)")
-total_final = total_bruto * 0.9 if promo else total_bruto
-
-# --- 📄 RESUMO PARA O CLIENTE COM IMAGEM ---
-st.subheader("🏁 Resumo do Orçamento")
-
-res_col1, res_col2 = st.columns([2, 1])
-
-with res_col1:
-    st.info(f"👤 **Cliente:** {nome_cliente if nome_cliente else 'Não informado'} \n\n🎨 **Projeto:** {nome_arte if nome_arte else 'Design Zion'}")
-    st.metric("Preço Unitário", f"${p_unit:.2f}")
-    st.metric("TOTAL FINAL", f"${total_final:.2f}", delta=f"-10%" if promo else None)
-
-with res_col2:
-    if arquivo_arte is not None:
-        st.image(arquivo_arte, caption="Arte do Projeto", use_container_width=True)
-    else:
-        st.write("🖼️ *Sem imagem da arte*")
-
-with st.expander("📊 Detalhes Técnicos (Zion Only)"):
-    st.write(f"Lucro Estimado: ${(total_final - (c_base + total_mat) * qtd):.2f}")
-
-st.caption("Zion Atelier - New York Style By Faith")
