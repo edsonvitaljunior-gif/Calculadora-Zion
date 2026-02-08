@@ -84,6 +84,10 @@ if st.checkbox("Adicionar Camada 3"):
     st.divider()
     custo_v += configurar_camada(3)
 
+if st.checkbox("Adicionar Camada 4"):
+    st.divider()
+    custo_v += configurar_camada(4)
+
 # --- 7. CÁLCULOS FINAIS ---
 custo_unitario_total = c_base + custo_v
 p_unit_sugerido = custo_unitario_total * mk_base
