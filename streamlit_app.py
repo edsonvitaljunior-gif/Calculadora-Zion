@@ -1,27 +1,20 @@
 import streamlit as st
 import os
-import base64
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 nome_logo = "Logo Zion Atelier com fundo tranp 68%.png"
 
+# Verificamos se o arquivo existe para definir o ícone da aba
+if os.path.exists(nome_logo):
+    fav_icon = nome_logo
+else:
+    fav_icon = "🗽"
+
 st.set_page_config(
     page_title="Zion Atelier - Sales Pro", 
-    page_icon=nome_logo if os.path.exists(nome_logo) else "🗽",
+    page_icon=fav_icon,
     layout="centered"
 )
-
-# --- TRUQUE PARA FORÇAR O ÍCONE NO ANDROID ---
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
-if os.path.exists(nome_logo):
-    bin_str = get_base64_of_bin_file(nome_logo)
-    # Esse código abaixo injeta o link do ícone diretamente no navegador
-    st.markdown(f'<link rel="apple-touch-icon" href="data:image/png;base64,{bin_str}">', unsafe_allow_stdio=True)
-    st.markdown(f'<link rel="icon" href="data:image/png;base64,{bin_str}">', unsafe_allow_stdio=True)
 
 # --- EXIBIÇÃO DA LOGO NO TOPO ---
 if os.path.exists(nome_logo):
@@ -29,7 +22,7 @@ if os.path.exists(nome_logo):
 else:
     st.title("🗽 Zion Atelier")
 
-# --- 📦 DATABASE DE VINIS (20% Waste Incluído) ---
+# --- DATABASE DE VINIS (20% Waste Incluído) ---
 vinis_db = {
     "EasyWeed (Siser)": {"GPI Supplies": {"price": 34.99, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}},
     "Puff Vinyl": {"GPI Supplies": {"price": 42.00, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 42.00, "width": 12, "yards": 5}},
@@ -92,7 +85,7 @@ def calcular_custo_camada(n):
 custos_vinis = []
 detalhes = []
 
-# Camada 1 (Sempre ativa)
+# Camada 1
 c_custo, c_nome = calcular_custo_camada(1)
 custos_vinis.append(c_custo)
 detalhes.append(f"C1 ({c_nome}): ${c_custo:.2f}")
@@ -112,7 +105,6 @@ custo_total_material = sum(custos_vinis)
 preco_unitario = (custo_camisa + custo_total_material) * markup_camisa
 total_bruto = preco_unitario * quantidade
 
-# Switch de Desconto
 aplicar_desconto = st.toggle("Aplicar Desconto de 10% (Promoção Combo)")
 
 if aplicar_desconto:
@@ -128,11 +120,11 @@ c1.metric("Preço Unitário", f"${preco_unitario:.2f}")
 c2.metric("TOTAL DO PEDIDO", f"${total_final:.2f}", delta=f"-${desconto_valor:.2f}" if aplicar_desconto else None)
 
 if aplicar_desconto:
-    st.success(f"🔥 Desconto de 10% aplicado! Economia de ${desconto_valor:.2f}")
+    st.success(f"🔥 Desconto de 10% aplicado!")
 
 with st.expander("Ver detalhes do custo real"):
     st.write(f"Custo Real Camisa (un): ${custo_camisa:.2f}")
     st.write(f"Custo Real Material (un): ${custo_total_material:.2f}")
-    st.write(f"Seu Lucro Estimado neste pedido: ${(total_final - (custo_camisa + custo_total_material) * quantidade):.2f}")
+    st.write(f"Seu Lucro Estimado: ${(total_final - (custo_camisa + custo_total_material) * quantidade):.2f}")
 
 st.caption("Zion Atelier - New York Style By Faith")
