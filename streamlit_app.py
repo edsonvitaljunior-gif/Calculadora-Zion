@@ -95,6 +95,10 @@ if st.checkbox("Adicionar Camada 3"):
     st.divider()
     custo_vinil_total += configurar_camada(3)
 
+if st.checkbox("Adicionar Camada 4"):
+    st.divider()
+    custo_vinil_total += configurar_camada(4)
+
 # --- 7. CÁLCULOS FINAIS ---
 custo_un_total = c_base + custo_vinil_total
 p_unit_sugerido = custo_un_total * mk_base
