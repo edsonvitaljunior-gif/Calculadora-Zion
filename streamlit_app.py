@@ -113,10 +113,12 @@ with res_col1:
     st.metric("TOTAL DO PEDIDO", f"${total_final:.2f}", delta=f"-10%" if promo else None)
 
 with res_col2:
+    # O SEGREDO ESTÁ AQUI: 
     if arquivo_arte is not None:
-        st.image(arquivo_arte, caption="Arte do Orçamento", use_container_width=True)
+        # Mostra a imagem que foi carregada lá no topo
+        st.image(arquivo_arte, caption="Preview da Arte", use_container_width=True)
     else:
-        st.write("🖼️ *Nenhuma imagem anexada*")
+        st.warning("🖼️ Aguardando imagem...")
 
 with st.expander("📊 Detalhes Técnicos (Zion Only)"):
     lucro_total = total_final - ((c_base + total_mat) * qtd)
