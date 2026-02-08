@@ -20,7 +20,7 @@ arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "w
 
 st.divider()
 
-# --- 4. DATABASE DE VINIS COMPLETA (Seu Arquivo) ---
+# --- 4. DATABASE DE VINIS COMPLETA ---
 vinis_db = {
     "EasyWeed (Siser)": {"GPI Supplies": {"price": 34.99, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}},
     "Puff Vinyl": {"GPI Supplies": {"price": 42.00, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 42.00, "width": 12, "yards": 5}},
@@ -36,6 +36,7 @@ vinis_db = {
     "Easy Fluorecent Pro (Thick)": {"Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}}
 }
 
+# --- DATABASE DE PRODUTOS CORRIGIDA ---
 produtos_db = {
     "CAMISAS": {
         "Gildan G500 Unisex": {"price": 2.82, "markup": 3.0},
@@ -55,22 +56,24 @@ produtos_db = {
 # --- 5. SELEÇÃO DE PRODUTO ---
 st.write("### 🛍️ Escolha o Item")
 categoria_selecionada = st.selectbox("Categoria", list(produtos_db.keys()))
-produto_nome = st.selectbox("Modelo", list(produtos_db[categoria_selecionada].keys()))
+
+# Puxa a lista de modelos da categoria escolhida
+lista_modelos = list(produtos_db[categoria_selecionada].keys())
+produto_nome = st.selectbox("Modelo", lista_modelos)
+
 qtd = st.number_input("Quantidade", min_value=1, value=1)
 
-dados_prod = produtos_db[categoria_selecionada][produto_nome]
-c_base = dados_prod["price"]
-mk_base = dados_prod["markup"]
+# Extração segura dos dados
+dados_selecionados = produtos_db[categoria_selecionada][produto_nome]
+c_base = dados_selecionados["price"]
+mk_base = dados_selecionados["markup"]
 
 st.divider()
 
-# --- 6. MEDIDAS E VINIL (Logística de Fornecedor) ---
+# --- 6. MEDIDAS E VINIL ---
 st.write("### 📏 Medidas da Arte")
 tipo_v = st.selectbox("Tipo de Vinil", list(vinis_db.keys()))
-
-# Novo Selectbox para o Fornecedor (muda conforme o vinil escolhido)
-lista_fornecedores = list(vinis_db[tipo_v].keys())
-fornecedor_v = st.selectbox("Fornecedor", lista_fornecedores)
+fornecedor_v = st.selectbox("Fornecedor", list(vinis_db[tipo_v].keys()))
 
 col1, col2 = st.columns(2)
 with col1:
@@ -78,18 +81,15 @@ with col1:
 with col2:
     h = st.number_input("Altura (in)", value=10.0)
 
-# Cálculo de custo detalhado por polegada quadrada
+# Cálculo de custo
 info_v = vinis_db[tipo_v][fornecedor_v]
-# Preço / (Largura do Rolo * Comprimento total em polegadas)
-custo_por_polegada = info_v["price"] / (info_v["width"] * (info_v["yards"] * 36))
-# Custo da área com 20% de margem de waste
-custo_vinil_final = (w * h) * custo_por_polegada * 1.2
+custo_sq_in = info_v["price"] / (info_v["width"] * (info_v["yards"] * 36))
+custo_vinil_total = (w * h) * custo_sq_in * 1.2
+custo_un_total = c_base + custo_vinil_total
 
-custo_unitario_total = c_base + custo_vinil_final
-
-# --- 7. PREÇOS E PROMO ---
-p_unit_sugerido = custo_unitario_total * mk_base
-total_bruto = p_unit_sugerido * qtd
+# --- 7. PREÇOS ---
+p_unit_sug = custo_un_total * mk_base
+total_bruto = p_unit_sug * qtd
 
 promo = st.toggle("Aplicar 10% de Desconto")
 total_final = total_bruto * 0.9 if promo else total_bruto
@@ -97,10 +97,9 @@ p_unit_final = total_final / qtd
 
 st.divider()
 
-# --- 8. RESUMO PARA O CLIENTE ---
+# --- 8. RESUMO ---
 st.subheader("🏁 Resumo do Orçamento")
-
-if arquivo_arte is not None:
+if arquivo_arte:
     st.image(arquivo_arte, use_container_width=True)
 
 st.info(f"👤 **Cliente:** {nome_cliente if nome_cliente else 'Zion Friend'} | 🎨 **Arte:** {nome_arte if nome_arte else 'Custom'}")
@@ -109,13 +108,12 @@ c_res1, c_res2 = st.columns(2)
 c_res1.metric("Unitário", f"${p_unit_final:.2f}")
 c_res2.metric("Total", f"${total_final:.2f}", delta="-10%" if promo else None)
 
-# --- 9. 📊 ZION ONLY ---
+# --- 9. ZION ONLY ---
 with st.expander("📊 Detalhes Financeiros (Zion Only)"):
-    lucro_total = total_final - (custo_unitario_total * qtd)
-    st.write(f"Vinil: {tipo_v} ({fornecedor_v})")
-    st.write(f"Custo Unit. Material: ${custo_unitario_total:.2f}")
-    st.write(f"Markup Base: {mk_base}x")
+    lucro = total_final - (custo_un_total * qtd)
+    st.write(f"Item: {produto_nome} | Vinil: {tipo_v}")
+    st.write(f"Custo Unit. Real: ${custo_un_total:.2f}")
     st.divider()
-    st.success(f"💰 **LUCRO ESTIMADO: ${lucro_total:.2f}**")
+    st.success(f"💰 **LUCRO NO BOLSO: ${lucro:.2f}**")
 
 st.caption("Zion Atelier - New York Style By Faith")
