@@ -122,14 +122,25 @@ c_res1, c_res2 = st.columns(2)
 c_res1.metric("Unitário", f"${p_unit_final:.2f}")
 c_res2.metric("Total", f"${total_final:.2f}", delta="-10%" if promo else None)
 
-# --- 9. 📊 ZION ONLY (DETALHAMENTO BOSS) ---
+# --- 9. 📊 ÁREA TÉCNICA (ZION ONLY) - AGORA COMPLETA ---
 with st.expander("📊 Detalhes Financeiros (Zion Only)"):
-    lucro_total = total_final - (custo_un_total * qtd)
-    st.write(f"**Produto:** {produto_nome}")
-    st.write(f"**Custo Peça (Jiffy):** ${c_base:.2f}")
-    st.write(f"**Custo Total Vinis:** ${custo_vinil_total:.2f}")
-    st.write(f"**Markup Base:** {mk_base}x")
+    custo_total_pedido = custo_unitario_total * qtd
+    lucro_liquido = total_final - custo_total_pedido
+    margem_porcentagem = (lucro_liquido / total_final) * 100 if total_final > 0 else 0
+    
+    col_t1, col_t2 = st.columns(2)
+    with col_t1:
+        st.write("**Custos:**")
+        st.write(f"Peça base: ${c_base:.2f}")
+        st.write(f"Vinil: ${custo_v:.2f}")
+        st.write(f"Custo Total/Un: ${custo_unitario_total:.2f}")
+    with col_t2:
+        st.write("**Performance:**")
+        st.write(f"Markup: {mk_base}x")
+        st.write(f"Lucro Bruto: ${lucro_liquido:.2f}")
+        st.write(f"Margem: {margem_porcentagem:.1f}%")
+    
     st.divider()
-    st.success(f"💰 **LUCRO ESTIMADO NO BOLSO: ${lucro_total:.2f}**")
+    st.success(f"💰 **DINHEIRO NO BOLSO: ${lucro_liquido:.2f}**")
 
 st.caption("Zion Atelier - New York Style By Faith")
