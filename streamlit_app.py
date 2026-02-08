@@ -139,5 +139,4 @@ with st.expander("📊 Detalhes Financeiros (Zion Only)"):
     st.divider()
     st.success(f"💰 **DINHEIRO NO BOLSO: ${lucro_liquido:.2f}**")
 
-
 st.caption("Zion Atelier - New York Style By Faith")
