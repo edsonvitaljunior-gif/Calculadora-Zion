@@ -17,14 +17,21 @@ st.write("### 📝 Dados do Orçamento")
 nome_cliente = st.text_input("Nome do Cliente", placeholder="Ex: John Doe")
 nome_arte = st.text_input("Nome da Arte", placeholder="Ex: NY Lion")
 
-# O Uploader que o seu S24 aceitou o buffer:
+# Upload
 arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "webp"], accept_multiple_files=False)
 
-# TRUQUE NOVO: Se a foto existir, ela aparece IMEDIATAMENTE aqui, antes do resto
+# --- TRUQUE PARA CELULAR: CONTAINER FIXO ---
+placeholder_imagem = st.container()
+
 if arquivo_arte is not None:
-    st.write("📸 **Preview da Arte:**")
-    st.image(arquivo_arte, width=250, output_format="PNG") # Forçamos largura fixa e formato PNG
-    st.success("✅ Imagem carregada no sistema!")
+    with placeholder_imagem:
+        # Usamos uma técnica de exibição direta
+        st.write("📸 **Preview da Arte:**")
+        # O parâmetro 'use_container_width=False' com 'width=280' ajuda o mobile
+        st.image(arquivo_arte, width=280)
+        st.success("✅ Imagem carregada!")
+else:
+    st.warning("⚠️ Aguardando upload da arte...")
 
 st.divider()
 
@@ -97,28 +104,17 @@ p_unit_final = total_final / qtd
 st.divider()
 
 # --- 7. RESUMO FINAL ---
-st.subheader("🏁 Resumo do Orçamento")
+st.subheader("🏁 Resumo")
 st.info(f"👤 **Cliente:** {nome_cliente if nome_cliente else 'Zion Friend'}\n\n🎨 **Projeto:** {nome_arte if nome_arte else 'Custom'}")
 
 col_res1, col_res2 = st.columns(2)
 col_res1.metric("Unitário", f"${p_unit_final:.2f}")
-col_res2.metric("Total", f"${total_final:.2f}", delta="-10%" if promo else None)
+col_res2.metric("Total", f"${total_final:.2f}")
 
 # --- 8. DETALHAMENTO (BOSS MODE) ---
-with st.expander("📊 Zion Only - Detalhes Financeiros"):
+with st.expander("📊 Zion Only - Detalhes"):
     lucro = total_final - (custo_total_un * qtd)
-    st.write(f"**Item:** {prod}")
-    st.divider()
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.write("💸 **Custos:**")
-        st.write(f"Peça: ${c_base:.2f}")
-        st.write(f"Vinil: ${custo_vinil_un:.2f}")
-    with col_b:
-        st.write("📈 **Margem:**")
-        st.write(f"Markup: {mk_base}x")
-        st.write(f"Custo/Un: ${custo_total_un:.2f}")
-    st.divider()
-    st.success(f"💰 **LUCRO NO BOLSO: ${lucro:.2f}**")
+    st.write(f"Custo Unitário: ${custo_total_un:.2f}")
+    st.success(f"💰 **LUCRO: ${lucro:.2f}**")
 
-st.caption("Zion Atelier - New York Style By Faith")
+st.caption("Zion Atelier - New York")
