@@ -20,7 +20,7 @@ arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "w
 
 st.divider()
 
-# --- 4. DATABASE COMPLETA DE VINIS (20% Waste Incluído) ---
+# --- 4. DATABASE COMPLETA DE VINIS ---
 vinis_db = {
     "EasyWeed (Siser)": {"GPI Supplies": {"price": 34.99, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}},
     "Puff Vinyl": {"GPI Supplies": {"price": 42.00, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 42.00, "width": 12, "yards": 5}},
@@ -36,7 +36,6 @@ vinis_db = {
     "Easy Fluorecent Pro (Thick)": {"Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}}
 }
 
-# --- DATABASE DE PRODUTOS (Com Juvenil e Preços Jiffy) ---
 produtos_db = {
     "CAMISAS": {
         "Gildan G500 Unisex": {"price": 2.82, "markup": 3.0},
@@ -45,66 +44,52 @@ produtos_db = {
         "Kids Shirt": {"price": 3.93, "markup": 3.0},
         "Gildan G500B - Juvenil Heavy Cotton™": {"price": 2.96, "markup": 3.0}
     },
-    "MOLETONS": {
-        "Gildan G185 Hoodie": {"price": 14.50, "markup": 2.5}
-    },
-    "BONÉS": {
-        "Snapback Classic": {"price": 5.50, "markup": 4.0},
-        "Trucker Hat": {"price": 4.20, "markup": 4.0}
-    }
+    "MOLETONS": {"Gildan G185 Hoodie": {"price": 14.50, "markup": 2.5}},
+    "BONÉS": {"Snapback Classic": {"price": 5.50, "markup": 4.0}, "Trucker Hat": {"price": 4.20, "markup": 4.0}}
 }
 
 # --- 5. SELEÇÃO DE PRODUTO ---
 st.write("### 🛍️ Escolha o Item")
-categoria_selecionada = st.selectbox("Categoria", list(produtos_db.keys()))
-produto_nome = st.selectbox("Modelo", list(produtos_db[categoria_selecionada].keys()))
+cat_sel = st.selectbox("Categoria", list(produtos_db.keys()))
+prod_nome = st.selectbox("Modelo", list(produtos_db[cat_sel].keys()))
 qtd = st.number_input("Quantidade", min_value=1, value=1)
 
-c_base = produtos_db[categoria_selecionada][produto_nome]["price"]
-mk_base = produtos_db[categoria_selecionada][produto_nome]["markup"]
+c_base = produtos_db[cat_sel][prod_nome]["price"]
+mk_base = produtos_db[cat_sel][prod_nome]["markup"]
 
 st.divider()
 
 # --- 6. CAMADAS DE VINIL (CLICÁVEIS) ---
 st.write("### 📏 Medidas e Camadas")
-custo_vinil_total = 0.0
+custo_v = 0.0
 
 def configurar_camada(n):
     st.markdown(f"**Configuração da Camada {n}**")
     tipo = st.selectbox(f"Tipo de Vinil (C{n})", list(vinis_db.keys()), key=f"tipo{n}")
-    fornecedor = st.selectbox(f"Fornecedor (C{n})", list(vinis_db[tipo].keys()), key=f"forn{n}")
-    
+    forn = st.selectbox(f"Fornecedor (C{n})", list(vinis_db[tipo].keys()), key=f"forn{n}")
     col_w, col_h = st.columns(2)
     with col_w: w = st.number_input(f"Largura in (C{n})", value=10.0, key=f"w{n}")
     with col_h: h = st.number_input(f"Altura in (C{n})", value=10.0, key=f"h{n}")
-    
-    info = vinis_db[tipo][fornecedor]
-    # Cálculo: Preço / (Largura do Rolo * 180 polegadas de 5 yards)
+    info = vinis_db[tipo][forn]
     custo_por_polegada = info["price"] / (info["width"] * 180)
     return (w * h) * custo_por_polegada * 1.2
 
-# Camada 1 sempre visível
-custo_vinil_total += configurar_camada(1)
+custo_v += configurar_camada(1)
 
-# Checkboxes para camadas extras
 if st.checkbox("Adicionar Camada 2"):
     st.divider()
-    custo_vinil_total += configurar_camada(2)
+    custo_v += configurar_camada(2)
 
 if st.checkbox("Adicionar Camada 3"):
     st.divider()
-    custo_vinil_total += configurar_camada(3)
-
-if st.checkbox("Adicionar Camada 4"):
-    st.divider()
-    custo_vinil_total += configurar_camada(4)
+    custo_v += configurar_camada(3)
 
 # --- 7. CÁLCULOS FINAIS ---
-custo_un_total = c_base + custo_vinil_total
-p_unit_sugerido = custo_un_total * mk_base
+custo_unitario_total = c_base + custo_v
+p_unit_sugerido = custo_unitario_total * mk_base
 total_bruto = p_unit_sugerido * qtd
 
-promo = st.toggle("Aplicar 10% de Desconto")
+promo = st.toggle("Aplicar 10% de Desconto Especial")
 total_final = total_bruto * 0.9 if promo else total_bruto
 p_unit_final = total_final / qtd
 
@@ -112,7 +97,6 @@ st.divider()
 
 # --- 8. RESUMO PARA O CLIENTE ---
 st.subheader("🏁 Resumo do Orçamento")
-
 if arquivo_arte is not None:
     st.image(arquivo_arte, use_container_width=True)
 
