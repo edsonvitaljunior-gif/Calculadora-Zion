@@ -6,7 +6,7 @@ nome_logo = "Logo Zion Atelier com fundo tranp 68%.png"
 fav_icon = nome_logo if os.path.exists(nome_logo) else "🗽"
 
 st.set_page_config(
-    page_title="Zion Atelier - Sales Pro", 
+    page_title="Zion Atelier - Pro Manager", 
     page_icon=fav_icon,
     layout="centered"
 )
@@ -17,7 +17,20 @@ if os.path.exists(nome_logo):
 else:
     st.title("🗽 Zion Atelier")
 
-# --- 📦 DATABASE DE VINIS (20% Waste Incluído) ---
+# --- 📋 IDENTIFICAÇÃO DO PROJETO ---
+st.write("### 📝 Dados do Orçamento")
+col_cli, col_art = st.columns(2)
+with col_cli:
+    nome_cliente = st.text_input("Nome do Cliente", placeholder="Ex: John Doe")
+with col_art:
+    nome_arte = st.text_input("Nome da Arte / Projeto", placeholder="Ex: NY Faith 2026")
+
+# CAMPO DE UPLOAD DA ARTE
+arquivo_arte = st.file_uploader("Upload da Arte (Opcional)", type=["png", "jpg", "jpeg"])
+
+st.divider()
+
+# --- 📦 DATABASE DE VINIS ---
 vinis_db = {
     "EasyWeed (Siser)": {"GPI Supplies": {"price": 34.99, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 37.99, "width": 12, "yards": 5}},
     "Puff Vinyl": {"GPI Supplies": {"price": 42.00, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 42.00, "width": 12, "yards": 5}},
@@ -30,19 +43,16 @@ vinis_db = {
     "StripFlock Pro (Thick)": {"GPI Supplies": {"price": 35.99, "width": 12, "yards": 5}, "Heat Transfer Whse": {"price": 45.00, "width": 12, "yards": 5}}
 }
 
-# --- 👕 DATABASE DE PRODUTOS EXPANDIDA (Camisas, Hoodies, Bonés) ---
-# Você pode ajustar esses preços e markups conforme sua realidade
+# --- 🛍️ DATABASE DE PRODUTOS ---
 produtos_db = {
     "CAMISAS": {
         "Gildan G500 Unisex (Jiffy)": {"price": 2.82, "markup": 3.0},
-        "Gildan G500 Unisex (Wordans)": {"price": 4.94, "markup": 3.0},
         "Feminina Gola V G500VL (Jiffy)": {"price": 6.37, "markup": 3.5},
         "Feminina Careca G500L (Jiffy)": {"price": 4.91, "markup": 3.2},
         "Kids Shirt G510P (Jiffy)": {"price": 3.93, "markup": 3.0}
     },
     "MOLETONS (HOODIES)": {
-        "Gildan G185 Hoodie (Jiffy)": {"price": 14.50, "markup": 2.5},
-        "Heavy Blend Hoodie (Wordans)": {"price": 16.80, "markup": 2.5}
+        "Gildan G185 Hoodie (Jiffy)": {"price": 14.50, "markup": 2.5}
     },
     "BONÉS (HATS)": {
         "Snapback Classic (Jiffy)": {"price": 5.50, "markup": 4.0},
@@ -51,78 +61,63 @@ produtos_db = {
 }
 
 # --- 🛍️ 1. SELEÇÃO DO PRODUTO ---
-st.write("### 🛍️ 1. Seleção do Produto")
-categoria = st.selectbox("Categoria", list(produtos_db.keys()))
-produto_nome = st.selectbox("Modelo", list(produtos_db[categoria].keys()))
+st.write("### 🛍️ 1. Detalhes do Produto")
+cat = st.selectbox("Categoria", list(produtos_db.keys()))
+prod = st.selectbox("Modelo", list(produtos_db[cat].keys()))
+qtd = st.number_input("Quantidade", min_value=1, value=1)
 
-custo_base = produtos_db[categoria][produto_nome]["price"]
-markup_base = produtos_db[categoria][produto_nome]["markup"]
-quantidade = st.number_input("Quantidade", min_value=1, value=1)
+c_base = produtos_db[cat][prod]["price"]
+mk_base = produtos_db[cat][prod]["markup"]
 
 st.divider()
 
-# --- 📏 2. CONFIGURAÇÃO POR CAMADA ---
-st.write("### 📏 2. Materiais da Estampa")
+# --- 📏 2. MATERIAIS ---
+st.write("### 📏 2. Configuração da Estampa")
 
-def calcular_custo_camada(n):
-    with st.expander(f"Configurar Camada {n}", expanded=(n==1)):
-        col1, col2 = st.columns(2)
-        with col1:
-            v_tipo = st.selectbox(f"Material C{n}", list(vinis_db.keys()), key=f"tipo{n}")
-        with col2:
-            opcoes_f = list(vinis_db[v_tipo].keys())
-            v_forn = st.selectbox(f"Fornecedor C{n}", opcoes_f, key=f"forn{n}")
-        
-        col3, col4 = st.columns(2)
-        w = col3.number_input(f"Largura (in) C{n}", min_value=0.0, step=0.1, key=f"w{n}")
-        h = col4.number_input(f"Altura (in) C{n}", min_value=0.0, step=0.1, key=f"h{n}")
-        
-        d = vinis_db[v_tipo][v_forn]
+def calc_camada(n):
+    with st.expander(f"Camada {n}", expanded=(n==1)):
+        c1, c2 = st.columns(2)
+        tipo = c1.selectbox(f"Material C{n}", list(vinis_db.keys()), key=f"t{n}")
+        forn = c2.selectbox(f"Fornecedor C{n}", list(vinis_db[tipo].keys()), key=f"f{n}")
+        c3, c4 = st.columns(2)
+        w = c3.number_input(f"Largura (in) C{n}", min_value=0.0, step=0.1, key=f"w{n}")
+        h = c4.number_input(f"Altura (in) C{n}", min_value=0.0, step=0.1, key=f"h{n}")
+        d = vinis_db[tipo][forn]
         taxa = (d["price"] / (d["width"] * (d["yards"] * 36))) * 1.2
-        return (w * h) * taxa, v_tipo
+        return (w * h) * taxa, tipo
 
-custos_vinis = []
-detalhes = []
+custos, nomes = [], []
+for i in range(1, 5):
+    if i == 1 or st.checkbox(f"Adicionar Camada {i}", key=f"cb{i}"):
+        v, n = calc_camada(i)
+        custos.append(v)
+        nomes.append(n)
 
-c_custo, c_nome = calcular_custo_camada(1)
-custos_vinis.append(c_custo)
-detalhes.append(f"C1 ({c_nome}): ${c_custo:.2f}")
-
-for i in [2, 3, 4]:
-    if st.checkbox(f"Add Camada {i}", key=f"check{i}"):
-        c_custo, c_nome = calcular_custo_camada(i)
-        custos_vinis.append(c_custo)
-        detalhes.append(f"C{i} ({c_nome}): ${c_custo:.2f}")
-
-# --- 💰 3. CÁLCULO E FECHAMENTO ---
+# --- 💰 3. FECHAMENTO ---
 st.divider()
-st.write("### 💰 3. Fechamento")
+total_mat = sum(custos)
+p_unit = (c_base + total_mat) * mk_base
+total_bruto = p_unit * qtd
+promo = st.toggle("Aplicar Desconto Especial (10%)")
+total_final = total_bruto * 0.9 if promo else total_bruto
 
-custo_total_material = sum(custos_vinis)
-# Preço Unitário = (Custo Base + Material) * Markup
-preco_unitario = (custo_base + custo_total_material) * markup_base
-total_bruto = preco_unitario * quantidade
+# --- 📄 RESUMO PARA O CLIENTE COM IMAGEM ---
+st.subheader("🏁 Resumo do Orçamento")
 
-aplicar_desconto = st.toggle("Aplicar Desconto de 10% (Promoção Zion)")
+res_col1, res_col2 = st.columns([2, 1])
 
-if aplicar_desconto:
-    total_final = total_bruto * 0.90
-    desconto_valor = total_bruto * 0.10
-else:
-    total_final = total_bruto
-    desconto_valor = 0.0
+with res_col1:
+    st.info(f"👤 **Cliente:** {nome_cliente if nome_cliente else 'Não informado'} \n\n🎨 **Projeto:** {nome_arte if nome_arte else 'Design Zion'}")
+    st.metric("Preço Unitário", f"${p_unit:.2f}")
+    st.metric("TOTAL FINAL", f"${total_final:.2f}", delta=f"-10%" if promo else None)
 
-# --- EXIBIÇÃO FINAL ---
-c1, c2 = st.columns(2)
-c1.metric("Preço Unitário", f"${preco_unitario:.2f}")
-c2.metric("TOTAL DO PEDIDO", f"${total_final:.2f}", delta=f"-${desconto_valor:.2f}" if aplicar_desconto else None)
+with res_col2:
+    if arquivo_arte is not None:
+        st.image(arquivo_arte, caption="Arte do Projeto", use_container_width=True)
+    else:
+        st.write("🖼️ *Sem imagem da arte*")
 
-if aplicar_desconto:
-    st.success(f"🔥 Promoção ativada! Cliente economiza ${desconto_valor:.2f}")
-
-with st.expander("Resumo de Custos Reais (Zion Atelier)"):
-    st.write(f"Custo Base do Produto: ${custo_base:.2f}")
-    st.write(f"Custo Material por Unidade: ${custo_total_material:.2f}")
-    st.write(f"Lucro Estimado do Pedido: ${(total_final - (custo_base + custo_total_material) * quantidade):.2f}")
+with st.expander("📊 Detalhes Técnicos (Zion Only)"):
+    st.write(f"Lucro Estimado: ${(total_final - (c_base + total_mat) * qtd):.2f}")
 
 st.caption("Zion Atelier - New York Style By Faith")
