@@ -64,7 +64,7 @@ vinis_db = {
 fornecedores_camisas = {
     "Jiffy Shirts (Gildan Unisex)": 2.80,
     "Wordans (Gildan Unisex)": 4.94,
-    "Zion Stock (Feminina Gola V)": 25.00,
+    "Jiffy Shirts (Feminina Algodão pesado Gildan G500VL Gola V)": 6.37,
     "Zion Stock (Feminina Careca)": 18.00,
     "Kids Shirt": 12.00
 }
