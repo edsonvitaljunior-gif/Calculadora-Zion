@@ -1,8 +1,8 @@
 import streamlit as st
 import os
+import base64
 
-# --- CONFIGURAÇÃO DA PÁGINA COM O ÍCONE DA ZION ---
-# O segredo está aqui: o page_icon agora aponta para o arquivo da sua logo!
+# --- CONFIGURAÇÃO DA PÁGINA ---
 nome_logo = "Logo Zion Atelier com fundo tranp 68%.png"
 
 st.set_page_config(
@@ -10,6 +10,18 @@ st.set_page_config(
     page_icon=nome_logo if os.path.exists(nome_logo) else "🗽",
     layout="centered"
 )
+
+# --- TRUQUE PARA FORÇAR O ÍCONE NO ANDROID ---
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+if os.path.exists(nome_logo):
+    bin_str = get_base64_of_bin_file(nome_logo)
+    # Esse código abaixo injeta o link do ícone diretamente no navegador
+    st.markdown(f'<link rel="apple-touch-icon" href="data:image/png;base64,{bin_str}">', unsafe_allow_stdio=True)
+    st.markdown(f'<link rel="icon" href="data:image/png;base64,{bin_str}">', unsafe_allow_stdio=True)
 
 # --- EXIBIÇÃO DA LOGO NO TOPO ---
 if os.path.exists(nome_logo):
