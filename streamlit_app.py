@@ -1,6 +1,11 @@
 import streamlit as st
 import os
+# No topo do código, logo após os imports, adicione essa configuração
+# Isso ajuda o Streamlit a lidar melhor com o buffer de arquivos grandes do Android
+st.config.set_option("server.maxUploadSize", 20) # Aumenta para 20MB por segurança
 
+# E no campo de upload, vamos deixar ele o mais aberto possível:
+arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "webp"], accept_multiple_files=False)
 # --- CONFIGURAÇÃO DA PÁGINA ---
 nome_logo = "Logo Zion Atelier com fundo tranp 68%.png"
 fav_icon = nome_logo if os.path.exists(nome_logo) else "🗽"
