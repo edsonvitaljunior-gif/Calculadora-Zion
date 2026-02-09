@@ -39,12 +39,12 @@ vinis_db = {
 produtos_db = {
     "CAMISAS": {
         "Gildan G500 Unisex": {"price": 2.82, "markup": 3.0},
-        "Feminina Gola V": {"price": 6.37, "markup": 3.5},
-        "Feminina Careca": {"price": 4.91, "markup": 3.2},
-        "Kids Shirt": {"price": 3.93, "markup": 3.0},
+        "Feminina Gildan G500VL Gola V": {"price": 6.37, "markup": 3.5},
+        "Feminina Gildan G500L  Gola Careca": {"price": 4.91, "markup": 3.2},
+        "Kids Shirt Gidan G510P Heavy Cotton": {"price": 3.93, "markup": 3.0},
         "Gildan G500B - Juvenil Heavy Cotton™": {"price": 2.96, "markup": 3.0}
     },
-    "MOLETONS": {"Gildan G185 Hoodie": {"price": 14.50, "markup": 2.5}},
+    "MOLETONS": {"Gildan Unisex 50/50 G185 Hoodie": {"price": 13.77, "markup": 2.5}},
     "BONÉS": {"Snapback Classic": {"price": 5.50, "markup": 4.0}, "Trucker Hat": {"price": 4.20, "markup": 4.0}}
 }
 
