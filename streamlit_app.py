@@ -2,55 +2,58 @@ import streamlit as st
 import os
 import urllib.parse
 
-# --- 1. CONFIGURAÇÃO & TEMA PREMIUM GOLDEN ---
+# --- 1. CONFIGURAÇÃO & TEMA PREMIUM GOLDEN 3D ---
 try:
     st.set_page_config(page_title="Zion Atelier", page_icon="🗽", layout="centered")
 except:
     pass
 
-# CSS TOTAL GOLD: Forçando tudo para Dourado e Fundo Preto
+# CSS CUSTOMIZADO: Fundo transparente no uploader e botão 3D
 st.markdown("""
     <style>
     /* Fundo Total Preto */
     .stApp { background-color: #000000; }
     
-    /* Forçando todos os textos para Dourado Zion */
-    h1, h2, h3, p, span, label, .stMarkdown, .stSelectbox label, .stNumberInput label, .stTextInput label { 
-        color: #d4af37 !important; 
-        font-weight: 500;
+    /* Textos em Dourado */
+    h1, h2, h3, p, span, label, .stMarkdown { color: #d4af37 !important; }
+    
+    /* --- CUSTOMIZAÇÃO DO UPLOADER --- */
+    /* Remove o fundo cinza e coloca borda dourada fina */
+    [data-testid="stFileUploader"] {
+        background-color: transparent !important;
+        border: 1px solid rgba(212, 175, 55, 0.3) !important;
+        border-radius: 15px;
+        padding: 20px;
     }
-    
-    /* Valores das Métricas (Números do Investimento) */
-    div[data-testid="stMetricValue"] { color: #d4af37 !important; font-weight: bold; }
-    div[data-testid="stMetricLabel"] { color: #ffffff !important; } /* Rótulo em branco para contraste */
-    
-    /* Container das Métricas */
+
+    /* Estilização do Botão 'Browse Files' para Efeito 3D */
+    [data-testid="stFileUploader"] button {
+        background-color: #d4af37 !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+        border-radius: 8px !important;
+        border: none !important;
+        box-shadow: 0px 4px 0px #b38f2d !important; /* Sombra sólida para efeito 3D */
+        transition: all 0.2s ease;
+    }
+
+    /* Efeito de Clique no Botão 3D */
+    [data-testid="stFileUploader"] button:active {
+        box-shadow: 0px 0px 0px #b38f2d !important;
+        transform: translateY(4px);
+    }
+
+    /* --- MÉTRICAS E OUTROS --- */
     div[data-testid="metric-container"] { 
         background-color: #111111; 
         border: 2px solid #d4af37; 
         padding: 15px; 
         border-radius: 12px; 
     }
+    
+    div[data-testid="stMetricValue"] { color: #d4af37 !important; }
 
-    /* Campos de Input (Caixas de texto e seleção) */
-    input, select, textarea {
-        background-color: #1a1a1a !important;
-        color: #d4af37 !important;
-        border: 1px solid #d4af37 !important;
-    }
-
-    /* Botão Principal */
-    .stButton>button { 
-        background-color: #d4af37 !important; 
-        color: #000000 !important; 
-        font-weight: bold !important; 
-        border-radius: 10px; 
-        border: none;
-        width: 100%;
-        height: 50px;
-    }
-
-    /* Estilo do link do WhatsApp dentro do botão */
+    /* Botão Final WhatsApp com efeito 3D similar */
     .wa-button {
         text-decoration: none; 
         color: #000000 !important; 
@@ -60,15 +63,16 @@ st.markdown("""
         font-weight: bold; 
         display: block; 
         text-align: center;
-        border: 1px solid #d4af37;
+        box-shadow: 0px 5px 0px #b38f2d;
+        transition: all 0.2s ease;
+    }
+    .wa-button:active {
+        box-shadow: 0px 0px 0px #b38f2d;
+        transform: translateY(5px);
     }
     
-    /* Divisores Dourados */
     hr { border-top: 1px solid #d4af37 !important; }
-
-    /* Estilo das tabelas de sugestão */
-    table { color: #d4af37 !important; border: 1px solid #d4af37; }
-    th { color: #ffffff !important; }
+    input, select { background-color: #1a1a1a !important; color: #d4af37 !important; border: 1px solid #d4af37 !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -84,18 +88,19 @@ st.write("### 📝 Solicitação de Orçamento")
 nome_cliente = st.text_input("Nome do Cliente", placeholder="Ex: John Doe")
 nome_arte = st.text_input("Nome da Arte", placeholder="Ex: Lion Pride")
 
+# Uploader com a Key dinâmica para o S24
 arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "webp"], key=f"up_{nome_cliente}")
 
-# --- 4. GUIA DE ESTILO ZION ---
+# --- 4. GUIA DE ESTILO & IMAGEM ---
 if arquivo_arte is not None:
     st.image(arquivo_arte, use_container_width=True)
     with st.expander("💡 Dica do Artista: Melhores Combinações"):
         st.write("""
-        | Se você busca... | Sugestão de Camisa | Sugestão de Vinil |
+        | Estilo | Camisa | Vinil |
         | :--- | :--- | :--- |
-        | **Estilo Streetwear** | Sand ou Black | Puff (Relevo) |
-        | **Destaque Noturno** | Navy ou Graphite | Glow in the Dark |
-        | **Visual Luxo** | Forest Green | Metallic Gold |
+        | **Streetwear** | Sand / Black | Puff |
+        | **Noturno** | Navy / Graphite | Glow |
+        | **Luxo** | Forest Green | Gold |
         """)
 
 st.divider()
@@ -159,7 +164,7 @@ if st.checkbox("Adicionar Camada 2"):
 if st.checkbox("Adicionar Camada 3"):
     st.divider(); custo_v += configurar_camada(3)
 
-# --- 8. CÁLCULOS ---
+# --- 8. CÁLCULOS FINAIS ---
 custo_un_total = c_base + custo_v
 p_unit_sugerido = custo_un_total * mk_base
 total_bruto = p_unit_sugerido * qtd
@@ -169,7 +174,7 @@ with st.sidebar:
     st.write("🔒 **Boss Only**")
     acesso = st.text_input("Chave", type="password")
     if acesso == SENHA_BOSS:
-        st.success("Welcome, Boss!")
+        st.success("Welcome!")
         if st.toggle("Desconto 10%"):
             desconto_aplicado = 0.10
 
@@ -189,7 +194,7 @@ msg = f"Olá {nome_cliente}! Segue orçamento da Zion Atelier:\n\n" \
       f"👕 Item: {prod_nome}\n" \
       f"🔢 Quantidade: {qtd}\n" \
       f"💰 Valor Total: ${total_final:.2f}\n\n" \
-      f"Podemos fechar seu pedido?"
+      f"Podemos fechar?"
       
 msg_encoded = urllib.parse.quote(msg)
 link_whatsapp = f"https://wa.me/?text={msg_encoded}"
@@ -203,7 +208,6 @@ if acesso == SENHA_BOSS:
         custo_total_pedido = custo_un_total * qtd
         lucro_liquido = total_final - custo_total_pedido
         st.write(f"Custo Total: ${custo_total_pedido:.2f}")
-        st.write(f"Margem: {(lucro_liquido/total_final)*100:.1f}%")
         st.success(f"💰 Lucro: ${lucro_liquido:.2f}")
 
 st.caption("Zion Atelier - New York Style By Faith")
