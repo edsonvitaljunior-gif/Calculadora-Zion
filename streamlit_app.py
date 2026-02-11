@@ -2,23 +2,52 @@ import streamlit as st
 import os
 import urllib.parse
 
-# --- 1. CONFIGURAÇÃO & TEMA PREMIUM ---
+# --- 1. CONFIGURAÇÃO & TEMA PREMIUM DARK ---
 try:
     st.set_page_config(page_title="Zion Atelier", page_icon="🗽", layout="centered")
 except:
     pass
 
-# CSS para Visual Black & Gold Premium
+# CSS FORTE para Visual Black & Gold (Forçando cores claras no texto)
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; color: #ffffff; }
-    .stButton>button { 
-        background-color: #d4af37; color: #000000; 
-        font-weight: bold; border-radius: 10px; border: none;
-    }
-    .stMetric { background-color: #1c1e23; padding: 15px; border-radius: 10px; border: 1px solid #333; }
-    div[data-testid="stExpander"] { border: 1px solid #d4af37; border-radius: 10px; }
+    /* Fundo Total */
+    .stApp { background-color: #000000; }
+    
+    /* Todos os textos para Branco */
+    h1, h2, h3, p, span, label, .stMarkdown { color: #ffffff !important; }
+    
+    /* Títulos em Dourado */
     h1, h2, h3 { color: #d4af37 !important; }
+
+    /* Estilização das Métricas (Valor do Investimento) */
+    div[data-testid="stMetricValue"] { color: #ffffff !important; font-weight: bold; }
+    div[data-testid="stMetricLabel"] { color: #d4af37 !important; }
+    div[data-testid="metric-container"] { 
+        background-color: #1a1a1a; 
+        border: 1px solid #d4af37; 
+        padding: 10px; 
+        border-radius: 10px; 
+    }
+
+    /* Botões */
+    .stButton>button { 
+        background-color: #d4af37 !important; 
+        color: #000000 !important; 
+        font-weight: bold !important; 
+        border-radius: 10px; 
+        width: 100%;
+        border: none;
+    }
+
+    /* Inputs e Seleções */
+    .stTextInput>div>div>input, .stSelectbox>div>div>select {
+        background-color: #333 !important;
+        color: white !important;
+    }
+    
+    /* Divisores */
+    hr { border-top: 1px solid #d4af37 !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -33,6 +62,8 @@ if os.path.exists(nome_logo):
 st.write("### 📝 Solicitação de Orçamento")
 nome_cliente = st.text_input("Nome do Cliente", placeholder="Como podemos te chamar?")
 nome_arte = st.text_input("Nome da Arte / Referência", placeholder="Ex: NY Lion Glow")
+
+# Key dinâmica para evitar erro de cache de imagem
 arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "webp"], key=f"up_{nome_cliente}")
 
 # --- 4. GUIA DE ESTILO ZION ---
@@ -133,26 +164,27 @@ col_res1, col_res2 = st.columns(2)
 col_res1.metric("Unitário", f"${p_unit_final:.2f}")
 col_res2.metric("Total", f"${total_final:.2f}")
 
-# FUNÇÃO: GERAR LINK WHATSAPP
+# FUNÇÃO WHATSAPP
 msg = f"Olá {nome_cliente}! Segue orçamento da Zion Atelier:\n\n" \
       f"🎨 Arte: {nome_arte}\n" \
       f"👕 Item: {prod_nome}\n" \
       f"🔢 Quantidade: {qtd}\n" \
       f"💰 Valor Total: ${total_final:.2f}\n\n" \
-      f"Podemos prosseguir com seu pedido?"
+      f"Podemos prosseguir?"
       
 msg_encoded = urllib.parse.quote(msg)
 link_whatsapp = f"https://wa.me/?text={msg_encoded}"
 
+st.write("") # Espaço
 if st.button("📱 Gerar Pedido para WhatsApp"):
-    st.markdown(f'<a href="{link_whatsapp}" target="_blank">Clique aqui para enviar no WhatsApp</a>', unsafe_allow_html=True)
+    st.markdown(f'<a href="{link_whatsapp}" target="_blank" style="text-decoration: none; color: black; background-color: #d4af37; padding: 10px; border-radius: 10px; font-weight: bold; display: block; text-align: center;">ENVIAR AGORA NO WHATSAPP</a>', unsafe_allow_html=True)
 
 # --- 10. ÁREA TÉCNICA (ADMIN) ---
 if acesso == SENHA_BOSS:
     with st.expander("📊 Detalhes Financeiros (Zion Only)"):
         custo_total_pedido = custo_un_total * qtd
         lucro_liquido = total_final - custo_total_pedido
-        st.write(f"**Lucro Bruto: ${lucro_liquido:.2f}**")
-        st.write(f"Margem: {(lucro_liquido/total_final)*100:.1f}%")
+        st.write(f"Custo Total: ${custo_total_pedido:.2f}")
+        st.success(f"💰 Lucro: ${lucro_liquido:.2f}")
 
 st.caption("Zion Atelier - New York Style By Faith")
