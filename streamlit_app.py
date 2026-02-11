@@ -18,6 +18,15 @@ st.markdown("""
         color: #d4af37 !important; 
     }
     
+    /* CORREÇÃO DOS EXEMPLOS (PLACEHOLDERS) - Deixando visíveis */
+    ::placeholder {
+        color: rgba(212, 175, 55, 0.6) !important;
+        opacity: 1; 
+    }
+    input::placeholder {
+        color: rgba(212, 175, 55, 0.6) !important;
+    }
+
     /* UPLOADER TRANSPARENTE COM BORDA DOURADA */
     [data-testid="stFileUploader"] {
         background-color: transparent !important;
@@ -40,10 +49,6 @@ st.markdown("""
         border-radius: 8px !important;
         box-shadow: 0px 4px 0px #b38f2d !important;
         transition: all 0.2s ease;
-    }
-    [data-testid="stFileUploader"] button:active {
-        box-shadow: 0px 0px 0px #b38f2d !important;
-        transform: translateY(4px);
     }
 
     /* MÉTRICAS (VALOR DO INVESTIMENTO) */
@@ -69,10 +74,6 @@ st.markdown("""
         box-shadow: 0px 5px 0px #b38f2d;
         font-size: 18px;
     }
-    .wa-button:active {
-        box-shadow: 0px 0px 0px #b38f2d;
-        transform: translateY(5px);
-    }
     
     hr { border-top: 1px solid #d4af37 !important; }
     input, select { background-color: #1a1a1a !important; color: #d4af37 !important; border: 1px solid #d4af37 !important; }
@@ -96,12 +97,11 @@ arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "w
 # --- 4. GUIA DE ESTILO & IMAGEM ---
 if arquivo_arte is not None:
     st.image(arquivo_arte, use_container_width=True)
-    with st.expander("💡 Dica do Artista: Melhores Combinações"):
+    with st.expander("💡 Dica do Artista"):
         st.write("""
         | Estilo | Camisa | Vinil |
         | :--- | :--- | :--- |
-        | **Streetwear** | Sand / Black | Puff (Relevo) |
-        | **Noturno** | Navy / Graphite | Glow (Brilha) |
+        | **Streetwear** | Sand / Black | Puff |
         | **Luxo** | Forest Green | Metallic Gold |
         """)
 
@@ -174,7 +174,7 @@ with st.sidebar:
     st.write("🔒 **Boss Mode**")
     acesso = st.text_input("Chave", type="password")
     if acesso == SENHA_BOSS:
-        st.success("Welcome, Edson!")
+        st.success("Welcome!")
         if st.toggle("Desconto 10%"):
             desconto_aplicado = 0.10
 
@@ -183,13 +183,12 @@ p_unit_final = total_final / qtd
 
 st.divider()
 
-# --- 9. RESUMO & WHATSAPP (MENSAGEM REVISADA) ---
+# --- 9. RESUMO & WHATSAPP ---
 st.subheader("🏁 Valor do Investimento")
 col_res1, col_res2 = st.columns(2)
 col_res1.metric("Unitário", f"${p_unit_final:.2f}")
 col_res2.metric("Total", f"${total_final:.2f}")
 
-# A MENSAGEM QUE VAI CONVENCER A LOLA
 msg = f"🗽 *ZION ATELIER - NY STYLE*\n\n" \
       f"Olá {nome_cliente}! Segue o detalhamento do seu projeto:\n\n" \
       f"🖼️ *Arte:* {nome_arte}\n" \
@@ -205,7 +204,7 @@ link_whatsapp = f"https://wa.me/?text={msg_encoded}"
 st.write("")
 st.markdown(f'<a href="{link_whatsapp}" target="_blank" class="wa-button">ENVIAR ORÇAMENTO VIA WHATSAPP</a>', unsafe_allow_html=True)
 
-# --- 10. ÁREA TÉCNICA (ADMIN) ---
+# --- 10. ÁREA TÉCNICA ---
 if acesso == SENHA_BOSS:
     with st.expander("📊 Detalhes Financeiros"):
         custo_total_pedido = custo_un_total * qtd
