@@ -2,52 +2,73 @@ import streamlit as st
 import os
 import urllib.parse
 
-# --- 1. CONFIGURAÇÃO & TEMA PREMIUM DARK ---
+# --- 1. CONFIGURAÇÃO & TEMA PREMIUM GOLDEN ---
 try:
     st.set_page_config(page_title="Zion Atelier", page_icon="🗽", layout="centered")
 except:
     pass
 
-# CSS FORTE para Visual Black & Gold (Forçando cores claras no texto)
+# CSS TOTAL GOLD: Forçando tudo para Dourado e Fundo Preto
 st.markdown("""
     <style>
-    /* Fundo Total */
+    /* Fundo Total Preto */
     .stApp { background-color: #000000; }
     
-    /* Todos os textos para Branco */
-    h1, h2, h3, p, span, label, .stMarkdown { color: #ffffff !important; }
+    /* Forçando todos os textos para Dourado Zion */
+    h1, h2, h3, p, span, label, .stMarkdown, .stSelectbox label, .stNumberInput label, .stTextInput label { 
+        color: #d4af37 !important; 
+        font-weight: 500;
+    }
     
-    /* Títulos em Dourado */
-    h1, h2, h3 { color: #d4af37 !important; }
-
-    /* Estilização das Métricas (Valor do Investimento) */
-    div[data-testid="stMetricValue"] { color: #ffffff !important; font-weight: bold; }
-    div[data-testid="stMetricLabel"] { color: #d4af37 !important; }
+    /* Valores das Métricas (Números do Investimento) */
+    div[data-testid="stMetricValue"] { color: #d4af37 !important; font-weight: bold; }
+    div[data-testid="stMetricLabel"] { color: #ffffff !important; } /* Rótulo em branco para contraste */
+    
+    /* Container das Métricas */
     div[data-testid="metric-container"] { 
-        background-color: #1a1a1a; 
-        border: 1px solid #d4af37; 
-        padding: 10px; 
-        border-radius: 10px; 
+        background-color: #111111; 
+        border: 2px solid #d4af37; 
+        padding: 15px; 
+        border-radius: 12px; 
     }
 
-    /* Botões */
+    /* Campos de Input (Caixas de texto e seleção) */
+    input, select, textarea {
+        background-color: #1a1a1a !important;
+        color: #d4af37 !important;
+        border: 1px solid #d4af37 !important;
+    }
+
+    /* Botão Principal */
     .stButton>button { 
         background-color: #d4af37 !important; 
         color: #000000 !important; 
         font-weight: bold !important; 
         border-radius: 10px; 
-        width: 100%;
         border: none;
+        width: 100%;
+        height: 50px;
     }
 
-    /* Inputs e Seleções */
-    .stTextInput>div>div>input, .stSelectbox>div>div>select {
-        background-color: #333 !important;
-        color: white !important;
+    /* Estilo do link do WhatsApp dentro do botão */
+    .wa-button {
+        text-decoration: none; 
+        color: #000000 !important; 
+        background-color: #d4af37; 
+        padding: 12px; 
+        border-radius: 10px; 
+        font-weight: bold; 
+        display: block; 
+        text-align: center;
+        border: 1px solid #d4af37;
     }
     
-    /* Divisores */
+    /* Divisores Dourados */
     hr { border-top: 1px solid #d4af37 !important; }
+
+    /* Estilo das tabelas de sugestão */
+    table { color: #d4af37 !important; border: 1px solid #d4af37; }
+    th { color: #ffffff !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -60,10 +81,9 @@ if os.path.exists(nome_logo):
 
 # --- 3. DADOS DO PROJETO ---
 st.write("### 📝 Solicitação de Orçamento")
-nome_cliente = st.text_input("Nome do Cliente", placeholder="Como podemos te chamar?")
-nome_arte = st.text_input("Nome da Arte / Referência", placeholder="Ex: NY Lion Glow")
+nome_cliente = st.text_input("Nome do Cliente", placeholder="Ex: John Doe")
+nome_arte = st.text_input("Nome da Arte", placeholder="Ex: Lion Pride")
 
-# Key dinâmica para evitar erro de cache de imagem
 arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "webp"], key=f"up_{nome_cliente}")
 
 # --- 4. GUIA DE ESTILO ZION ---
@@ -73,7 +93,7 @@ if arquivo_arte is not None:
         st.write("""
         | Se você busca... | Sugestão de Camisa | Sugestão de Vinil |
         | :--- | :--- | :--- |
-        | **Estilo Streetwear** | Sand (Areia) ou Black | Puff (Relevo) |
+        | **Estilo Streetwear** | Sand ou Black | Puff (Relevo) |
         | **Destaque Noturno** | Navy ou Graphite | Glow in the Dark |
         | **Visual Luxo** | Forest Green | Metallic Gold |
         """)
@@ -124,67 +144,4 @@ custo_v = 0.0
 def configurar_camada(n):
     st.markdown(f"**Camada {n}**")
     tipo = st.selectbox(f"Tipo de Vinil (C{n})", list(vinis_db.keys()), key=f"tipo{n}")
-    forn = st.selectbox(f"Fornecedor (C{n})", list(vinis_db[tipo].keys()), key=f"forn{n}")
-    col_w, col_h = st.columns(2)
-    with col_w: w = st.number_input(f"Largura (in) {n}", value=10.0, key=f"w{n}")
-    with col_h: h = st.number_input(f"Altura (in) {n}", value=10.0, key=f"h{n}")
-    info = vinis_db[tipo][forn]
-    custo_por_polegada = info["price"] / (info["width"] * 180)
-    return (w * h) * custo_por_polegada * 1.2
-
-custo_v += configurar_camada(1)
-
-if st.checkbox("Adicionar Camada 2"):
-    st.divider(); custo_v += configurar_camada(2)
-if st.checkbox("Adicionar Camada 3"):
-    st.divider(); custo_v += configurar_camada(3)
-
-# --- 8. CÁLCULOS ---
-custo_un_total = c_base + custo_v
-p_unit_sugerido = custo_un_total * mk_base
-total_bruto = p_unit_sugerido * qtd
-
-desconto_aplicado = 0.0
-with st.sidebar:
-    st.write("🔒 **Área Reservada**")
-    acesso = st.text_input("Chave do Boss", type="password")
-    if acesso == SENHA_BOSS:
-        st.success("Acesso Liberado!")
-        if st.toggle("Aplicar 10% de Desconto"):
-            desconto_aplicado = 0.10
-
-total_final = total_bruto * (1 - desconto_aplicado)
-p_unit_final = total_final / qtd
-
-st.divider()
-
-# --- 9. RESUMO & WHATSAPP ---
-st.subheader("🏁 Valor do Investimento")
-col_res1, col_res2 = st.columns(2)
-col_res1.metric("Unitário", f"${p_unit_final:.2f}")
-col_res2.metric("Total", f"${total_final:.2f}")
-
-# FUNÇÃO WHATSAPP
-msg = f"Olá {nome_cliente}! Segue orçamento da Zion Atelier:\n\n" \
-      f"🎨 Arte: {nome_arte}\n" \
-      f"👕 Item: {prod_nome}\n" \
-      f"🔢 Quantidade: {qtd}\n" \
-      f"💰 Valor Total: ${total_final:.2f}\n\n" \
-      f"Podemos prosseguir?"
-      
-msg_encoded = urllib.parse.quote(msg)
-link_whatsapp = f"https://wa.me/?text={msg_encoded}"
-
-st.write("") # Espaço
-if st.button("📱 Gerar Pedido para WhatsApp"):
-    st.markdown(f'<a href="{link_whatsapp}" target="_blank" style="text-decoration: none; color: black; background-color: #d4af37; padding: 10px; border-radius: 10px; font-weight: bold; display: block; text-align: center;">ENVIAR AGORA NO WHATSAPP</a>', unsafe_allow_html=True)
-
-# --- 10. ÁREA TÉCNICA (ADMIN) ---
-if acesso == SENHA_BOSS:
-    with st.expander("📊 Detalhes Financeiros (Zion Only)"):
-        custo_total_pedido = custo_un_total * qtd
-        lucro_liquido = total_final - custo_total_pedido
-        st.write(f"Custo Total: ${custo_total_pedido:.2f}")
-        st.success(f"💰 Lucro: ${lucro_liquido:.2f}")
-
-st.caption("Zion Atelier - New York Style By Faith")
+    forn =
