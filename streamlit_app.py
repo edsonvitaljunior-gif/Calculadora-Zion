@@ -8,7 +8,7 @@ try:
 except:
     pass
 
-# CSS CUSTOMIZADO: Fundo transparente no uploader e botão 3D
+# CSS CUSTOMIZADO: Uploader Transparente com Bordas Douradas
 st.markdown("""
     <style>
     /* Fundo Total Preto */
@@ -18,42 +18,58 @@ st.markdown("""
     h1, h2, h3, p, span, label, .stMarkdown { color: #d4af37 !important; }
     
     /* --- CUSTOMIZAÇÃO DO UPLOADER --- */
-    /* Remove o fundo cinza e coloca borda dourada fina */
+    /* 1. Container Externo */
     [data-testid="stFileUploader"] {
         background-color: transparent !important;
-        border: 1px solid rgba(212, 175, 55, 0.3) !important;
-        border-radius: 15px;
-        padding: 20px;
+        border: none !important;
+        padding: 0px;
     }
 
-    /* Estilização do Botão 'Browse Files' para Efeito 3D */
+    /* 2. Área de Drag and Drop (Interna) */
+    [data-testid="stFileUploaderDropzone"] {
+        background-color: transparent !important;
+        border: 2px dashed #d4af37 !important; /* Borda dourada pontilhada */
+        border-radius: 15px !important;
+        transition: all 0.3s ease;
+    }
+    
+    /* Efeito de hover na área de drop */
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border: 2px solid #ffffff !important; /* Brilha branco ao passar o mouse/dedo */
+        background-color: rgba(212, 175, 55, 0.05) !important;
+    }
+
+    /* 3. Texto "Drag and drop file here" e "Limit 200MB" */
+    [data-testid="stFileUploaderDropzone"] section div {
+        color: #d4af37 !important;
+    }
+
+    /* 4. Estilização do Botão 'Browse Files' 3D */
     [data-testid="stFileUploader"] button {
         background-color: #d4af37 !important;
         color: #000000 !important;
         font-weight: bold !important;
         border-radius: 8px !important;
         border: none !important;
-        box-shadow: 0px 4px 0px #b38f2d !important; /* Sombra sólida para efeito 3D */
+        box-shadow: 0px 4px 0px #b38f2d !important;
         transition: all 0.2s ease;
+        margin-top: 10px;
     }
 
-    /* Efeito de Clique no Botão 3D */
     [data-testid="stFileUploader"] button:active {
         box-shadow: 0px 0px 0px #b38f2d !important;
         transform: translateY(4px);
     }
 
-    /* --- MÉTRICAS E OUTROS --- */
+    /* --- OUTROS ELEMENTOS --- */
     div[data-testid="metric-container"] { 
         background-color: #111111; 
         border: 2px solid #d4af37; 
         padding: 15px; 
         border-radius: 12px; 
     }
-    
     div[data-testid="stMetricValue"] { color: #d4af37 !important; }
 
-    /* Botão Final WhatsApp com efeito 3D similar */
     .wa-button {
         text-decoration: none; 
         color: #000000 !important; 
@@ -64,11 +80,6 @@ st.markdown("""
         display: block; 
         text-align: center;
         box-shadow: 0px 5px 0px #b38f2d;
-        transition: all 0.2s ease;
-    }
-    .wa-button:active {
-        box-shadow: 0px 0px 0px #b38f2d;
-        transform: translateY(5px);
     }
     
     hr { border-top: 1px solid #d4af37 !important; }
@@ -88,7 +99,7 @@ st.write("### 📝 Solicitação de Orçamento")
 nome_cliente = st.text_input("Nome do Cliente", placeholder="Ex: John Doe")
 nome_arte = st.text_input("Nome da Arte", placeholder="Ex: Lion Pride")
 
-# Uploader com a Key dinâmica para o S24
+# Uploader com a borda dourada e fundo transparente
 arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "webp"], key=f"up_{nome_cliente}")
 
 # --- 4. GUIA DE ESTILO & IMAGEM ---
@@ -202,12 +213,11 @@ link_whatsapp = f"https://wa.me/?text={msg_encoded}"
 st.write("")
 st.markdown(f'<a href="{link_whatsapp}" target="_blank" class="wa-button">ENVIAR AGORA NO WHATSAPP</a>', unsafe_allow_html=True)
 
-# --- 10. ÁREA TÉCNICA (ADMIN) ---
+# --- 10. ÁREA TÉCNICA ---
 if acesso == SENHA_BOSS:
-    with st.expander("📊 Detalhes Financeiros (Zion Only)"):
+    with st.expander("📊 Detalhes Financeiros"):
         custo_total_pedido = custo_un_total * qtd
         lucro_liquido = total_final - custo_total_pedido
-        st.write(f"Custo Total: ${custo_total_pedido:.2f}")
         st.success(f"💰 Lucro: ${lucro_liquido:.2f}")
 
 st.caption("Zion Atelier - New York Style By Faith")
