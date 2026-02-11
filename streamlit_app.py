@@ -144,4 +144,66 @@ custo_v = 0.0
 def configurar_camada(n):
     st.markdown(f"**Camada {n}**")
     tipo = st.selectbox(f"Tipo de Vinil (C{n})", list(vinis_db.keys()), key=f"tipo{n}")
-    forn =
+    forn = st.selectbox(f"Fornecedor (C{n})", list(vinis_db[tipo].keys()), key=f"forn{n}")
+    col_w, col_h = st.columns(2)
+    with col_w: w = st.number_input(f"Largura (in) {n}", value=10.0, key=f"w{n}")
+    with col_h: h = st.number_input(f"Altura (in) {n}", value=10.0, key=f"h{n}")
+    info = vinis_db[tipo][forn]
+    custo_por_polegada = info["price"] / (info["width"] * 180)
+    return (w * h) * custo_por_polegada * 1.2
+
+custo_v += configurar_camada(1)
+
+if st.checkbox("Adicionar Camada 2"):
+    st.divider(); custo_v += configurar_camada(2)
+if st.checkbox("Adicionar Camada 3"):
+    st.divider(); custo_v += configurar_camada(3)
+
+# --- 8. CÁLCULOS ---
+custo_un_total = c_base + custo_v
+p_unit_sugerido = custo_un_total * mk_base
+total_bruto = p_unit_sugerido * qtd
+
+desconto_aplicado = 0.0
+with st.sidebar:
+    st.write("🔒 **Boss Only**")
+    acesso = st.text_input("Chave", type="password")
+    if acesso == SENHA_BOSS:
+        st.success("Welcome, Boss!")
+        if st.toggle("Desconto 10%"):
+            desconto_aplicado = 0.10
+
+total_final = total_bruto * (1 - desconto_aplicado)
+p_unit_final = total_final / qtd
+
+st.divider()
+
+# --- 9. RESUMO & WHATSAPP ---
+st.subheader("🏁 Valor do Investimento")
+col_res1, col_res2 = st.columns(2)
+col_res1.metric("Unitário", f"${p_unit_final:.2f}")
+col_res2.metric("Total", f"${total_final:.2f}")
+
+msg = f"Olá {nome_cliente}! Segue orçamento da Zion Atelier:\n\n" \
+      f"🎨 Arte: {nome_arte}\n" \
+      f"👕 Item: {prod_nome}\n" \
+      f"🔢 Quantidade: {qtd}\n" \
+      f"💰 Valor Total: ${total_final:.2f}\n\n" \
+      f"Podemos fechar seu pedido?"
+      
+msg_encoded = urllib.parse.quote(msg)
+link_whatsapp = f"https://wa.me/?text={msg_encoded}"
+
+st.write("")
+st.markdown(f'<a href="{link_whatsapp}" target="_blank" class="wa-button">ENVIAR AGORA NO WHATSAPP</a>', unsafe_allow_html=True)
+
+# --- 10. ÁREA TÉCNICA (ADMIN) ---
+if acesso == SENHA_BOSS:
+    with st.expander("📊 Detalhes Financeiros (Zion Only)"):
+        custo_total_pedido = custo_un_total * qtd
+        lucro_liquido = total_final - custo_total_pedido
+        st.write(f"Custo Total: ${custo_total_pedido:.2f}")
+        st.write(f"Margem: {(lucro_liquido/total_final)*100:.1f}%")
+        st.success(f"💰 Lucro: ${lucro_liquido:.2f}")
+
+st.caption("Zion Atelier - New York Style By Faith")
