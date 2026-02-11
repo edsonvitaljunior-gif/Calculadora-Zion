@@ -13,10 +13,19 @@ if os.path.exists(nome_logo):
    st.image(nome_logo, width=150)
 
 # --- 3. DADOS DO PROJETO ---
-st.write("### 📝 Dados do Orçamento")
-nome_cliente = st.text_input("Nome do Cliente", placeholder="Quem está comprando?")
-nome_arte = st.text_input("Nome da Arte", placeholder="Ex: NY Lion Glow")
-arquivo_arte = st.file_uploader("Upload da Arte", type=["png", "jpg", "jpeg", "webp"], accept_multiple_files=False)
+st.write("### 📝 Solicitação de Orçamento")
+nome_cliente = st.text_input("Nome do Cliente", placeholder="Como podemos te chamar?")
+nome_arte = st.text_input("Nome da Arte / Referência", placeholder="Ex: NY Lion Glow")
+
+# Adicionamos um 'key' dinâmico baseado no nome do cliente para forçar o refresh
+arquivo_arte = st.file_uploader("Upload da sua Arte", type=["png", "jpg", "jpeg", "webp"], key=f"uploader_{nome_cliente}")
+
+# --- 4. GUIA DE ESTILO ZION ---
+if arquivo_arte is not None:
+    # O segredo: use_container_width=True e limpamos o cache de imagem do Streamlit
+    st.image(arquivo_arte, use_container_width=True, caption="Arte Carregada com Sucesso")
+    with st.expander("💡 Dica do Artista: Melhores Combinações"):
+        # ... (seu guia de estilo aqui)
 
 st.divider()
 
