@@ -8,29 +8,43 @@ try:
 except:
     pass
 
+# CSS TOTAL GOLD: Fundo Preto Absoluto e Letras Douradas
 st.markdown("""
     <style>
     .stApp { background-color: #000000; }
     h1, h2, h3, p, span, label, .stMarkdown { color: #d4af37 !important; }
     ::placeholder { color: rgba(212, 175, 55, 0.6) !important; opacity: 1; }
+    input::placeholder { color: rgba(212, 175, 55, 0.6) !important; }
     [data-testid="stFileUploaderDropzone"] { border: 2px dashed #d4af37 !important; border-radius: 15px !important; }
     [data-testid="stFileUploader"] button { background-color: #d4af37 !important; color: #000000 !important; font-weight: bold !important; box-shadow: 0px 4px 0px #b38f2d !important; }
     div[data-testid="metric-container"] { background-color: #111111; border: 2px solid #d4af37; padding: 15px; border-radius: 12px; }
-    div[data-testid="stMetricValue"] { color: #d4af37 !important; font-weight: bold; }
-    .wa-button { text-decoration: none; color: #000000 !important; background-color: #d4af37; padding: 15px; border-radius: 10px; font-weight: bold; display: block; text-align: center; box-shadow: 0px 5px 0px #b38f2d; font-size: 18px; }
-    hr { border-top: 1px solid #d4af37 !important; }
-    input, select { background-color: #1a1a1a !important; color: #d4af37 !important; border: 1px solid #d4af37 !important; }
+    .wa-button {
+        display: block;
+        text-align: center;
+        background-color: #25d366 !important;
+        color: white !important;
+        font-weight: bold !important;
+        padding: 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0px 4px 0px #128c7e !important;
+        margin-top: 15px;
+    }
     </style>
-    """, unsafe_allow_html=True)
-
-SENHA_BOSS = "zion2026"
+""", unsafe_allow_html=True)
 
 # --- 2. LOGO ---
-nome_logo = "Logo Zion Atelier com fundo tranp 68%.png"
+nome_logo = "logo.png"
 if os.path.exists(nome_logo):
    st.image(nome_logo, width=150)
 
-# --- 3. DADOS DO PROJETO ---
+# --- 3. CONTROLE DE ESTOQUE ---
+if 'estoque' not in st.session_state:
+    st.session_state.estoque = {
+        "Gildan G500": 50, "Onesie Baby": 20, "G185 Hoodie": 15, "Vinyl Puff": 10
+    }
+
+# --- 4. DADOS DO PROJETO ---
 st.write("### 📝 Solicitação de Orçamento")
 nome_client = st.text_input("Nome do Cliente", placeholder="Ex: John Doe")
 nome_art = st.text_input("Nome da Arte", placeholder="Ex: Zion Legacy Lion")
@@ -41,7 +55,7 @@ if arquivo_art is not None:
 
 st.divider()
 
-# --- 4. DATABASE COMPLETA (INCLUINDO LEGACY & NOVOS VINIS) ---
+# --- 5. DATABASE COMPLETA (INCLUINDO LEGACY & NOVOS VINIS) ---
 vinis_db = {
     "EasyWeed HTV (Siser)": {"GPI Supplies": {"price": 34.99, "width": 12}, "Heat Transfer Whse": {"price": 37.99, "width": 12}},
     "Puff Vinyl (3D)": {"GPI Supplies": {"price": 42.00, "width": 12}, "Heat Transfer Whse": {"price": 42.00, "width": 12}},
@@ -55,17 +69,12 @@ vinis_db = {
 }
 
 produtos_db = {
-    "ZION KIDS & BABY": {
-        "Baby Onesie (Body)": {"price": 4.50, "markup": 4.0},
-        "Toddler Tee (2-5y)": {"price": 5.20, "markup": 3.8},
-        "Youth Heavy Cotton": {"price": 3.93, "markup": 3.5}
-    },
-    "LEGACY COLLECTION": {
-        "Grandpa/Grandma Luxury": {"price": 7.50, "markup": 3.5},
+    "KIDS & BABY": {
+        "Onesie Baby": {"price": 4.50, "markup": 3.5},
         "Daddy/Mommy Oversized": {"price": 12.00, "markup": 3.0},
         "Auntie Special Edition": {"price": 8.50, "markup": 3.5}
     },
-    "CAMISAS ADULTO": {
+    "URBAN STREETWEAR": {
         "Gildan G500 Unisex": {"price": 2.82, "markup": 3.0},
         "Feminina G500VL V-Neck": {"price": 6.37, "markup": 3.5},
         "Feminina G500L Crewneck": {"price": 4.91, "markup": 3.2}
@@ -77,18 +86,18 @@ produtos_db = {
     }
 }
 
-# --- 5. SELEÇÃO DE ITEM ---
+# --- 6. SELEÇÃO DE ITEM ---
 st.write("### 🛍️ Configure seu Item")
 cat_sel = st.selectbox("Categoria", list(produtos_db.keys()))
 prod_nome = st.selectbox("Modelo", list(produtos_db[cat_sel].keys()))
-qtd = st.number_input("Quantidade", min_value=1, value=1)
 
 c_base = produtos_db[cat_sel][prod_nome]["price"]
 mk_base = produtos_db[cat_sel][prod_nome]["markup"]
+qtd = st.number_input("Quantidade", min_value=1, value=12, step=1)
 
 st.divider()
 
-# --- 6. SISTEMA DE 4 CAMADAS (RESTAURADO) ---
+# --- 7. SISTEMA DE 4 CAMADAS (RESTAURADO) ---
 st.write("### 📏 Detalhamento das Camadas")
 total_custo_vinil = 0.0
 detalhes_camadas = []
@@ -102,7 +111,7 @@ def configurar_camada(n):
     with col_h: h = st.number_input(f"Altura (in) {n}", value=5.0, key=f"h{n}")
     
     info = vinis_db[tipo][forn]
-    # Cálculo: (Área / Área Total do Rolo) * Preço do Rolo
+    # Cálculo: (Área / Área Total do Rolo de 15 pés/180 in) * Preço do Rolo
     custo_polegada = info["price"] / (info["width"] * 180) 
     custo_da_camada = (w * h) * custo_polegada * 1.3 # 30% margem de perda
     
@@ -112,32 +121,43 @@ def configurar_camada(n):
 total_custo_vinil += configurar_camada(1)
 
 if st.checkbox("Adicionar Camada 2"):
-    st.divider(); total_custo_vinil += configurar_camada(2)
+    st.divider()
+    total_custo_vinil += configurar_camada(2)
 if st.checkbox("Adicionar Camada 3"):
-    st.divider(); total_custo_vinil += configurar_camada(3)
+    st.divider()
+    total_custo_vinil += configurar_camada(3)
 if st.checkbox("Adicionar Camada 4"):
-    st.divider(); total_custo_vinil += configurar_camada(4)
+    st.divider()
+    total_custo_vinil += configurar_camada(4)
 
-# --- 7. CÁLCULOS FINAIS ---
+# --- 8. CÁLCULOS FINAIS ---
 custo_un_total = c_base + total_custo_vinil
 p_unit_sugerido = custo_un_total * mk_base
 total_bruto = p_unit_sugerido * qtd
 
+# --- CONTROLE BOSS ---
+SENHA_BOSS = "1234" # Troque para sua senha de preferência
 desconto_aplicado = 0.0
+acesso = ""
+
 with st.sidebar:
-    st.write("🔒 **Boss Mode**")
+    st.subheader("🔐 Painel Administrativo")
     acesso = st.text_input("Chave", type="password")
     if acesso == SENHA_BOSS:
         st.success("Welcome, Boss Edson!")
         if st.toggle("Desconto 10%"):
             desconto_aplicado = 0.10
+        st.write("---")
+        st.write("📦 **Estoque Rápido**")
+        for item, valor in st.session_state.estoque.items():
+            st.write(f"{item}: {valor} un")
 
 total_final = total_bruto * (1 - desconto_aplicado)
 p_unit_final = total_final / qtd
 
 st.divider()
 
-# --- 8. RESUMO DE INVESTIMENTO ---
+# --- 9. RESUMO DE INVESTIMENTO ---
 st.subheader("🏁 Valor do Investimento")
 col_res1, col_res2 = st.columns(2)
 col_res1.metric("Unitário", f"${p_unit_final:.2f}")
@@ -150,14 +170,14 @@ msg = f"🗽 *ZION ATELIER - NY STYLE*\n\n" \
       f"🔢 *Qtd:* {qtd}\n" \
       f"💰 *Investimento:* ${total_final:.2f}\n\n" \
       f"Podemos avançar?"
-      
+
 msg_encoded = urllib.parse.quote(msg)
 link_whatsapp = f"https://wa.me/?text={msg_encoded}"
-st.markdown(f'<a href="{link_whatsapp}" target="_blank" class="wa-button">ENVIAR ORÇAMENTO VIA WHATSAPP</a>', unsafe_allow_html=True)
+st.markdown(f'<a href="{link_whatsapp}" target="_blank" class="wa-button">ENVIAR PARA WHATSAPP</a>', unsafe_allow_html=True)
 
-# --- 9. ÁREA TÉCNICA (DETALHAMENTO DE INSUMOS RECUPERADO) ---
+# --- 10. ÁREA TÉCNICA (DETALHAMENTO DE INSUMOS RECUPERADO) ---
 if acesso == SENHA_BOSS:
-    with st.expander("📊 Detalhamento de Insumos & Lucro"):
+    with st.expander("📊 Detalhes Financeiros"):
         st.write(f"**Peça Base ({prod_nome}):** ${c_base:.2f}")
         st.write(f"**Total Vinis (Arte):** ${total_custo_vinil:.2f}")
         for cam in detalhes_camadas:
