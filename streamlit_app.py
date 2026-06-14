@@ -68,24 +68,27 @@ vinis_db = {
     "StripFlock Pro": {"GPI Supplies": {"price": 35.99, "width": 12}}
 }
 
-# NOVA ESTRUTURA DE CATEGORIAS: Trabalho, Streetwear e Luxo
+# DATABASE ATUALIZADA COM AVENTAIS E BONÉS REORGANIZADOS
 produtos_db = {
     "1. TRABALHO (UNIFORMES)": {
         "Gildan G500 Heavy Cotton": {"price": 2.82, "markup": 2.5},
         "Feminina G500L Crewneck": {"price": 4.91, "markup": 2.5},
-        "Polo Básica Workwear": {"price": 7.50, "markup": 2.5}
+        "Polo Básica Workwear": {"price": 7.50, "markup": 2.5},
+        "Avental Profissional (House Cleaner/Work)": {"price": 6.80, "markup": 2.8},
+        "Trucker Hat Econômico (Uniforme)": {"price": 3.20, "markup": 3.0}
     },
     "2. URBAN STREETWEAR": {
         "Gildan G185 Hoodie": {"price": 13.77, "markup": 3.0},
         "Daddy/Mommy Oversized": {"price": 12.00, "markup": 3.0},
         "Feminina G500VL V-Neck": {"price": 6.37, "markup": 3.2},
         "Snapback Classic": {"price": 5.50, "markup": 4.0},
-        "Trucker Hat": {"price": 4.20, "markup": 4.0}
+        "Trucker Hat Premium": {"price": 4.20, "markup": 4.0}
     },
     "3. LINHA LUXO (ZION PREMIUM)": {
         "Camiseta Zion Premium Pima": {"price": 15.50, "markup": 4.0},
         "Moletom Zion Luxury Heavy": {"price": 28.00, "markup": 4.0},
-        "Onesie Baby Luxury Edition": {"price": 6.50, "markup": 4.5}
+        "Onesie Baby Luxury Edition": {"price": 6.50, "markup": 4.5},
+        "Avental Luxo Canvas/Couro (Zion Chef/Atelier)": {"price": 18.50, "markup": 4.0}
     }
 }
 
