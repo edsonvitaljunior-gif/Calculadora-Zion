@@ -178,7 +178,7 @@ p_unit_sugerido = custo_un_total * mk_base
 total_bruto = p_unit_sugerido * qtd
 
 # --- CONTROLE BOSS ---
-SENHA_BOSS = "1234"
+SENHA_BOSS = "Zion2026"
 desconto_aplicado = 0.0
 acesso = ""
 
