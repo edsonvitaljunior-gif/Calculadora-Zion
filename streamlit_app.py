@@ -78,6 +78,7 @@ produtos_db = {
         "Trucker Hat Econômico (Uniforme)": {"price": 3.20, "markup": 3.0}
     },
     "2. URBAN STREETWEAR": {
+        "Hanes 4980 Perfect-t-Shirt nano": {"price": 3.65, "markup": 3.0},
         "Gildan G185 Hoodie": {"price": 13.77, "markup": 3.0},
         "Daddy/Mommy Oversized": {"price": 12.00, "markup": 3.0},
         "Feminina G500VL V-Neck": {"price": 6.37, "markup": 3.2},
